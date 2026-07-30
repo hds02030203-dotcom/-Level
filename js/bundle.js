@@ -407,8 +407,15 @@
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
-      canvas.width = 600;
-      canvas.height = 800;
+      // Ultra-HD 3X Retina Scaling Matrix (1800px x 2400px crisp export resolution)
+      const scale = 3;
+      canvas.width = 600 * scale;
+      canvas.height = 800 * scale;
+      ctx.scale(scale, scale);
+
+      // High quality antialiasing and image smoothing
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
       // Background Gradient
       const bgGradient = ctx.createLinearGradient(0, 0, 0, 800);
@@ -438,7 +445,7 @@
       }
 
       ctx.fillStyle = '#94A3B8';
-      ctx.font = 'bold 20px Pretendard, sans-serif';
+      ctx.font = 'bold 20px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(certTitle, 300, 80);
 
@@ -453,7 +460,7 @@
       ctx.fill();
 
       ctx.fillStyle = '#0F172A';
-      ctx.font = 'bold 18px Pretendard, sans-serif';
+      ctx.font = 'bold 18px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText(`🔥 ${resultData.topPercent}`, 300, 134);
 
       // Belt Icon
@@ -462,22 +469,22 @@
 
       // Result Level Title
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = '900 38px Pretendard, sans-serif';
+      ctx.font = '900 38px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText(resultData.type, 300, 310);
 
       // Subtitle
       ctx.fillStyle = '#FBBF24';
-      ctx.font = 'bold 24px Pretendard, sans-serif';
+      ctx.font = 'bold 24px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText(`[${resultData.subTitle}]`, 300, 355);
 
       // Description
       ctx.fillStyle = '#CBD5E1';
-      ctx.font = '16px Pretendard, sans-serif';
+      ctx.font = '16px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       CardExporter.wrapText(ctx, resultData.description, 300, 420, 480, 26);
 
       // Quote
       ctx.fillStyle = '#F59E0B';
-      ctx.font = 'italic 16px Pretendard, sans-serif';
+      ctx.font = 'italic 16px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText(resultData.quote, 300, 580);
 
       // Chemistry Box
@@ -485,12 +492,12 @@
       ctx.fillRect(60, 620, 480, 90);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.fillStyle = '#34D399';
-      ctx.font = 'bold 18px Pretendard, sans-serif';
+      ctx.font = 'bold 18px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText(`💖 환상의 짝꿍: ${resultData.bestMatch}`, 300, 672);
 
       // Footer Watermark
       ctx.fillStyle = '#64748B';
-      ctx.font = '14px Pretendard, sans-serif';
+      ctx.font = '14px Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.fillText('🥋 태권도 레벨 테스트 (Taekwondo Level Test)', 300, 750);
 
       return canvas;
@@ -498,7 +505,7 @@
 
     static exportCardAsPNG(resultData) {
       const canvas = CardExporter.renderCanvas(resultData);
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       const a = document.createElement('a');
       a.href = dataUrl;
       const namePart = resultData.userName ? `_${resultData.userName}` : '';
@@ -513,7 +520,7 @@
         const canvas = CardExporter.renderCanvas(resultData);
         canvas.toBlob((blob) => {
           resolve(blob);
-        }, 'image/png');
+        }, 'image/png', 1.0);
       });
     }
 
