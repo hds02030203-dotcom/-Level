@@ -1,6 +1,6 @@
 /**
  * 태권도 레벨 테스트 (Taekwondo Level Test) - Question Data & Scoring Matrix
- * Expanded to 15 comprehensive situational questions for 9 belt/level categories.
+ * Expanded to 19 comprehensive situational & qualification questions.
  */
 export const QUESTIONS = [
   {
@@ -128,7 +128,7 @@ export const QUESTIONS = [
     question: "수련하면서 띠의 색상이 점차 바뀌어갈 때 느끼는 보람은?",
     options: [
       { text: '흰 띠에서 노란 띠, 파란 띠로 묶는 띠의 색깔이 올라갈 때의 기쁨.', target: 'YELLOW_BELT' },
-      { text: '땀과 노력이 결실을 맺어 내 허리에 검은 띠가 매어지는 역사적 순간.', target: 'DAN_1' },
+      { text: '땀과 노력이 결실을 맺어 내 도복에 검은 띠가 매어지는 역사적 순간.', target: 'DAN_1' },
       { text: '품새와 겨루기 실력이 몰라보게 성장한 나 자신을 발견할 때.', target: 'BLUE_BELT' },
       { text: '내가 가르치고 격려한 후배 수련생이 심사에 합격해 기뻐할 때.', target: 'SABEOM' }
     ]
@@ -151,6 +151,46 @@ export const QUESTIONS = [
       { text: '정리가 안 된 신발이나 물건을 보면 칼 같이 각을 맞춰 정돈한다.', target: 'YELLOW_BELT' },
       { text: '순간적으로 높은 곳의 버튼을 누를 때 가벼운 발차기 스텝이 나온다.', target: 'RED_BELT' },
       { text: '길을 걸을 때도 바른 자세와 깊은 호흡을 유지하며 서기를 의식한다.', target: 'DAN_4' }
+    ]
+  },
+  {
+    id: 16,
+    question: "지도자 및 전문 자격증(국제태권도사범 자격증, 생활스포츠지도사 등) 보유 현황은?",
+    options: [
+      { text: '국제태권도사범 자격증 및 생활스포츠지도사(태권도) 등 정식 자격을 갖추었다.', target: 'SABEOM' },
+      { text: '생활스포츠지도사 자격증을 보유 중이거나 취득을 위해 열심히 준비하고 있다.', target: 'DAN_4' },
+      { text: '국기원 품/단증을 보유하고 있으며, 향후 지도자 자격에 관심이 있다.', target: 'DAN_1' },
+      { text: '아직 자격증은 없지만 도장에서 즐겁게 수련하며 하나씩 배워가고 있다.', target: 'YELLOW_BELT' }
+    ]
+  },
+  {
+    id: 17,
+    question: "당신이 자신 있게 숙지하고 수행할 수 있는 품새의 범위는 어디까지인가요?",
+    options: [
+      { text: '고려, 금강, 태백을 넘어 평원, 지태, 천권, 일여 등 고단자 전문 품새까지 완습했다.', target: 'DAN_5' },
+      { text: '태극 1~8장은 물론, 고려·금강 품새의 절도 있는 동작과 선을 완벽히 구사한다.', target: 'DAN_3' },
+      { text: '태극 1~8장 중 기본 품새(태극 1~4장 등)의 순서를 익히고 표현할 수 있다.', target: 'BLUE_BELT' },
+      { text: '주춤서기, 기본 막기, 주먹지르기 및 기본 앞차기를 수련하는 단계이다.', target: 'WHITE_BELT' }
+    ]
+  },
+  {
+    id: 18,
+    question: "지금까지 태권도를 수련해 온 누적 수련 기간은 어느 정도인가요?",
+    options: [
+      { text: '10년 이상 장기 수련하며 태권도를 인생의 일부분이자 삶의 철학으로 삼았다.', target: 'GWANJANG' },
+      { text: '3년 이상 ~ 10년 미만 꾸준히 땀 흘리며 검은 띠/품증을 획득하고 수련해왔다.', target: 'DAN_2' },
+      { text: '6개월 이상 ~ 3년 미만 수련하며 띠를 높여가고 기본기를 다졌다.', target: 'RED_BELT' },
+      { text: '이제 막 입문했거나 6개월 미만으로 태권도의 재미를 알아가는 중이다.', target: 'WHITE_BELT' }
+    ]
+  },
+  {
+    id: 19,
+    question: "도장 및 심사 현장에서 본인이 체감하는 종합적인 태권도 내공 레벨은?",
+    options: [
+      { text: '국제사범 자격과 고단자 심사를 거쳐 제자를 양성하는 전문 지도자 수준.', target: 'GWANJANG' },
+      { text: '선수단/시범단에서 활약하며 고난도 기술과 겨루기를 연마한 엘리트 수준.', target: 'PLAYER' },
+      { text: '유품자/유단자로서 품새와 발차기를 절도 있게 구사하는 숙련 무도인 수준.', target: 'POOM_3' },
+      { text: '매일 승급 시험과 새 목표를 향해 도전하는 열정 수련생 수준.', target: 'YELLOW_BELT' }
     ]
   }
 ];
