@@ -1,0 +1,660 @@
+import os
+
+with open('js/data/results.js', 'r', encoding='utf-8') as f:
+    results_code = f.read()
+
+with open('js/data/questions.js', 'r', encoding='utf-8') as f:
+    questions_code = f.read()
+
+# Clean export statements
+results_clean = results_code.replace("export const RESULT_TYPES = {", "const RESULT_TYPES = {").strip()
+# Remove header doc comments if any
+if results_clean.startswith("/**"):
+    results_clean = results_clean[results_clean.find("*/") + 2:].strip()
+
+questions_clean = questions_code.replace("export const QUESTIONS = [", "const QUESTIONS = [").strip()
+if questions_clean.startswith("/**"):
+    questions_clean = questions_clean[questions_clean.find("*/") + 2:].strip()
+
+bundle_code = f"""/**
+ * Taekwondo Level Test - Universal Standalone Bundle (js/bundle.js)
+ * Works途径 on both file:// protocol (double-clicking index.html) and http:// servers.
+ */
+(function () {{
+  'use strict';
+
+  // --------------------------------------------------------------------------
+  // 1. RESULT TYPES DEFINITION
+  // --------------------------------------------------------------------------
+  {results_clean}
+
+  // --------------------------------------------------------------------------
+  // 2. QUESTION DATA DEFINITION
+  // --------------------------------------------------------------------------
+  {questions_clean}
+
+  // --------------------------------------------------------------------------
+  // 3. CANVAS RESULT CARD EXPORTER
+  // --------------------------------------------------------------------------
+  class CardExporter {{
+    static exportCardAsPNG(resultData) {{
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = 600;
+      canvas.height = 800;
+
+      // Background Gradient
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, 800);
+      bgGradient.addColorStop(0, '#0F172A');
+      bgGradient.addColorStop(1, '#0B132B');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, 600, 800);
+
+      // Frame Borders
+      ctx.strokeStyle = '#F59E0B';
+      ctx.lineWidth = 6;
+      ctx.strokeRect(20, 20, 560, 760);
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(30, 30, 540, 740);
+
+      // Title
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = 'bold 20px Pretendard, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
+
+      // Top % Tag Pill
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath();
+      if (ctx.roundRect) {{
+        ctx.roundRect(190, 110, 220, 36, 18);
+      }} else {{
+        ctx.rect(190, 110, 220, 36);
+      }}
+      ctx.fill();
+
+      ctx.fillStyle = '#0F172A';
+      ctx.font = 'bold 18px Pretendard, sans-serif';
+      ctx.fillText(`🔥 국기원 통계 ${{resultData.topPercent}}`, 300, 134);
+
+      // Belt Icon
+      ctx.font = '80px sans-serif';
+      ctx.fillText(resultData.icon, 300, 240);
+
+      // Level Title
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 38px Pretendard, sans-serif';
+      ctx.fillText(resultData.type, 300, 310);
+
+      // Subtitle
+      ctx.fillStyle = '#FBBF24';
+      ctx.font = 'bold 24px Pretendard, sans-serif';
+      ctx.fillText(`[${{resultData.subTitle}}]`, 300, 355);
+
+      // Description
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = '16px Pretendard, sans-serif';
+      CardExporter.wrapText(ctx, resultData.description, 300, 420, 480, 26);
+
+      // Quote
+      ctx.fillStyle = '#F59E0B';
+      ctx.font = 'italic 16px Pretendard, sans-serif';
+      ctx.fillText(resultData.quote, 300, 580);
+
+      // Chemistry Box
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.fillRect(60, 620, 480, 90);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillStyle = '#34D399';
+      ctx.font = 'bold 18px Pretendard, sans-serif';
+      ctx.fillText(`💖 환상의 짝꿍: ${{resultData.bestMatch}}`, 300, 672);
+
+      // Download trigger
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `태권도_레벨_인증서_${{resultData.type.replace(/\\s+/g, '_')}}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }}
+
+    static wrapText(ctx, text, x, y, maxWidth, lineHeight) {{
+      const words = text.split(' ');
+      let line = '';
+      let currentY = y;
+
+      for (let n = 0; n < words.length; n++) {{
+        const testLine = line + words[n] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {{
+          ctx.fillText(line, x, currentY);
+          line = words[n] + ' ';
+          currentY += lineHeight;
+        }} else {{
+          line = testLine;
+        }}
+      }}
+      ctx.fillText(line, x, currentY);
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.5 STARTSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class StartScreenComponent {{
+    constructor(containerId, options = {{}}) {{
+      this.containerId = containerId;
+      this.onStart = options.onStart || (() => {{}});
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render() {{
+      if (!this.container) return;
+
+      this.container.innerHTML = `
+        <div class="glass-card landing-view">
+          <div class="hero-emblem" aria-label="Taekwondo Belt Emblem">🥋</div>
+          <h1 class="landing-title">내 태권도 내공은<br>몇 단일까?</h1>
+          <p class="landing-desc">
+            도장 수련 지식부터 실전 위기 상황 태도까지!<br>
+            직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
+          </p>
+          <div class="participant-badge">
+            🔥 현재까지 12,450명 참여 완료
+          </div>
+          <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
+            ⚡ 테스트 시작하기
+          </button>
+        </div>
+      `;
+
+      const startBtn = this.container.querySelector('#startTestBtn');
+      if (startBtn) {{
+        startBtn.addEventListener('click', () => {{
+          this.onStart();
+        }});
+      }}
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.6 QUIZSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class QuizScreenComponent {{
+    constructor(containerId, options = {{}}) {{
+      this.containerId = containerId;
+      this.onSelectOption = options.onSelectOption || (() => {{}});
+      this.onPrevStep = options.onPrevStep || (() => {{}});
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render(questionData, currentStep, totalSteps, selectedOptionIndex = null) {{
+      if (!this.container || !questionData) return;
+
+      const progressContainer = document.getElementById('progressContainer');
+      const percentage = Math.round((currentStep / totalSteps) * 100);
+
+      if (progressContainer) {{
+        progressContainer.innerHTML = `
+          <div class="progress-container">
+            <div class="progress-header">
+              <span>진행률</span>
+              <span class="progress-counter">Q. ${{String(currentStep).padStart(2, '0')}} / ${{String(totalSteps).padStart(2, '0')}}</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: ${{percentage}}%;"></div>
+            </div>
+          </div>
+        `;
+      }}
+
+      const optionsHtml = questionData.options.map((opt, idx) => `
+        <button class="option-card ${{selectedOptionIndex === idx ? 'selected' : ''}}" data-index="${{idx}}">
+          <span class="option-index">${{idx + 1}}</span>
+          <span class="option-text">${{opt.text}}</span>
+        </button>
+      `).join('');
+
+      const backBtnHtml = currentStep > 1
+        ? `<button class="btn-back" id="prevBtn">← 이전 질문으로</button>`
+        : `<span></span>`;
+
+      this.container.innerHTML = `
+        <div class="glass-card quiz-view">
+          <h2 class="question-text">${{questionData.question}}</h2>
+          <div class="options-group">
+            ${{optionsHtml}}
+          </div>
+          <div class="nav-buttons">
+            ${{backBtnHtml}}
+          </div>
+        </div>
+      `;
+
+      const optionBtns = this.container.querySelectorAll('.option-card');
+      optionBtns.forEach(btn => {{
+        btn.addEventListener('click', () => {{
+          const idx = parseInt(btn.getAttribute('data-index'), 10);
+          this.onSelectOption(questionData, idx);
+        }});
+      }});
+
+      const prevBtn = this.container.querySelector('#prevBtn');
+      if (prevBtn) {{
+        prevBtn.addEventListener('click', () => {{
+          this.onPrevStep();
+        }});
+      }}
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.7 LOADINGSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class LoadingScreenComponent {{
+    constructor(containerId) {{
+      this.containerId = containerId;
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render() {{
+      if (!this.container) return;
+
+      this.container.innerHTML = `
+        <div class="glass-card loading-view">
+          <div class="spinner" aria-label="내공 측정 로더"></div>
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin-top: 10px;">
+            내 태권도 내공 측정 중...
+          </h2>
+          <p style="font-size: 0.9rem; color: var(--text-sub); line-height: 1.5;">
+            국기원 품·단 통계 데이터 및 무도 정신 항목을<br>
+            기준으로 종합 분석하고 있습니다.
+          </p>
+        </div>
+      `;
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.8 RESULTSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class ResultScreenComponent {{
+    constructor(containerId, options = {{}}) {{
+      this.containerId = containerId;
+      this.onRestart = options.onRestart || (() => {{}});
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render(resultData) {{
+      if (!this.container || !resultData) return;
+
+      this.container.innerHTML = `
+        <div class="result-view">
+          <div class="certificate-card">
+            <div class="top-percent-tag">🔥 국기원 통계 ${{resultData.topPercent}}</div>
+            <div class="belt-badge-icon">${{resultData.icon}}</div>
+            <h2 class="result-belt-title">${{resultData.type}}</h2>
+            <div class="result-subtitle">부칭호: ${{resultData.subTitle}}</div>
+            
+            <p class="result-desc">${{resultData.description}}</p>
+            <p style="font-style: italic; color: var(--gold-glow); font-size: 0.85rem; margin-bottom: 16px;">
+              ${{resultData.quote}}
+            </p>
+
+            <div class="chemistry-box" style="grid-template-columns: 1fr;">
+              <div class="chem-card chem-best">
+                <div class="chem-title">💖 환상의 짝꿍</div>
+                <div class="chem-value">${{resultData.bestMatch}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <button class="btn-primary" id="downloadBtn">
+              📥 결과 카드 이미지 저장 (PNG)
+            </button>
+            <button class="btn-secondary" id="kakaoShareBtn" style="background: #FEE500; color: #191919; border: none; font-weight: 800;">
+              💬 카카오톡으로 결과 공유하기
+            </button>
+            <button class="btn-secondary" id="instaShareBtn" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #FFFFFF; border: none; font-weight: 800;">
+              📸 인스타그램 스토리에 공유하기
+            </button>
+            <button class="btn-secondary" id="copyUrlBtn">
+              🔗 테스트 링크 복사하기
+            </button>
+            <button class="btn-back" id="restartBtn" style="margin-top: 8px;">
+              🔄 테스트 다시 도전하기
+            </button>
+          </div>
+        </div>
+      `;
+
+      this.bindEvents(resultData);
+    }}
+
+    bindEvents(resultData) {{
+      const downloadBtn = this.container.querySelector('#downloadBtn');
+      if (downloadBtn) {{
+        downloadBtn.addEventListener('click', () => {{
+          CardExporter.exportCardAsPNG(resultData);
+        }});
+      }}
+
+      const kakaoBtn = this.container.querySelector('#kakaoShareBtn');
+      if (kakaoBtn) {{
+        kakaoBtn.addEventListener('click', () => {{
+          this.shareKakao(resultData);
+        }});
+      }}
+
+      const instaBtn = this.container.querySelector('#instaShareBtn');
+      if (instaBtn) {{
+        instaBtn.addEventListener('click', () => {{
+          this.shareInstagramStory(resultData);
+        }});
+      }}
+
+      const copyUrlBtn = this.container.querySelector('#copyUrlBtn');
+      if (copyUrlBtn) {{
+        copyUrlBtn.addEventListener('click', () => {{
+          navigator.clipboard.writeText(window.location.href);
+          alert('테스트 주소가 클립보드에 복사되었습니다!');
+        }});
+      }}
+
+      const restartBtn = this.container.querySelector('#restartBtn');
+      if (restartBtn) {{
+        restartBtn.addEventListener('click', () => {{
+          this.onRestart();
+        }});
+      }}
+    }}
+
+    shareKakao(resultData) {{
+      const kakaoKey = window.ENV_KAKAO_JS_KEY || '';
+      if (window.Kakao && !window.Kakao.isInitialized() && kakaoKey) {{
+        try {{
+          window.Kakao.init(kakaoKey);
+        }} catch (e) {{
+          console.warn('Kakao init error:', e);
+        }}
+      }}
+
+      if (window.Kakao && window.Kakao.isInitialized()) {{
+        window.Kakao.Share.sendDefault({{
+          objectType: 'feed',
+          content: {{
+            title: `🥋 나의 태권도 레벨: [${{resultData.type}}]`,
+            description: `${{resultData.subTitle}} | 국기원 통계 ${{resultData.topPercent}}\\n${{resultData.description}}`,
+            imageUrl: window.location.origin + '/assets/og-thumb.png',
+            link: {{
+              mobileWebUrl: window.location.href,
+              webUrl: window.location.href,
+            }},
+          }},
+          buttons: [
+            {{
+              title: '나도 레벨 테스트 하기',
+              link: {{
+                mobileWebUrl: window.location.href,
+                webUrl: window.location.href,
+              }},
+            }},
+          ],
+        }});
+      }} else {{
+        navigator.clipboard.writeText(window.location.href);
+        alert('카카오 SDK 키가 등록되지 않았거나 초기화되지 않았습니다. 테스트 링크가 복사되었습니다!');
+      }}
+    }}
+
+    shareInstagramStory(resultData) {{
+      alert('📸 인스타그램 스토리 공유 안내\\n\\n1. 자동으로 결과 카드 이미지(PNG)가 다운로드됩니다.\\n2. 사이트 주소가 클립보드에 복사됩니다.\\n3. 인스타그램 앱 스토리 카메라로 이동합니다! (이미지 및 링크 첨부)');
+      CardExporter.exportCardAsPNG(resultData);
+      navigator.clipboard.writeText(window.location.href);
+
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {{
+        setTimeout(() => {{
+          window.location.href = 'instagram://story-camera';
+        }}, 1500);
+      }}
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.9 HEADER COMPONENT
+  // --------------------------------------------------------------------------
+  class HeaderComponent {{
+    constructor(containerId, options = {{}}) {{
+      this.containerId = containerId;
+      this.onSoundToggle = options.onSoundToggle || (() => {{}});
+      this.isMuted = true;
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render() {{
+      if (!this.container) return;
+
+      this.container.innerHTML = `
+        <header class="site-header">
+          <a href="#" class="brand-logo" id="headerLogoBtn">
+            <span>🥋 태권도 LEVEL</span>
+            <span class="brand-badge">TEST</span>
+          </a>
+          <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드">
+            ${{this.isMuted ? '🔇' : '🔊'}}
+          </button>
+        </header>
+      `;
+
+      const logoBtn = this.container.querySelector('#headerLogoBtn');
+      if (logoBtn) {{
+        logoBtn.addEventListener('click', (e) => {{
+          e.preventDefault();
+          window.location.reload();
+        }});
+      }}
+
+      const soundBtn = this.container.querySelector('#soundToggleBtn');
+      if (soundBtn) {{
+        soundBtn.addEventListener('click', () => {{
+          this.isMuted = !this.isMuted;
+          soundBtn.textContent = this.isMuted ? '🔇' : '🔊';
+          this.onSoundToggle(this.isMuted);
+        }});
+      }}
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 4. MAIN SPA APPLICATION CONTROLLER
+  // --------------------------------------------------------------------------
+  class TaekwondoApp {{
+    constructor() {{
+      this.state = 'START'; // 'START' | 'QUIZ' | 'LOADING' | 'RESULT'
+      this.currentStep = 0;
+      this.answers = [];
+      this.scores = {{}};
+      this.finalResult = null;
+
+      this.header = new HeaderComponent('headerContainer');
+      this.startScreen = new StartScreenComponent('mainContainer', {{
+        onStart: () => {{
+          this.state = 'QUIZ';
+          this.currentStep = 0;
+          this.answers = [];
+          this.scores = {{}};
+          this.render();
+        }}
+      }});
+
+      this.quizScreen = new QuizScreenComponent('mainContainer', {{
+        onSelectOption: (question, idx) => this.handleSelect(question, idx),
+        onPrevStep: () => this.handlePrev()
+      }});
+
+      this.loadingScreen = new LoadingScreenComponent('mainContainer');
+      this.resultScreen = new ResultScreenComponent('mainContainer', {{
+        onRestart: () => this.handleRestart()
+      }});
+
+      this.init();
+    }}
+
+    init() {{
+      this.header.render();
+      this.render();
+    }}
+
+    render() {{
+      const mainContainer = document.getElementById('mainContainer');
+      const progressContainer = document.getElementById('progressContainer');
+      if (!mainContainer) return;
+
+      if (this.state === 'START') {{
+        if (progressContainer) progressContainer.innerHTML = '';
+        this.startScreen.render();
+
+      }} else if (this.state === 'QUIZ') {{
+        const question = QUESTIONS[this.currentStep];
+        const selectedOptionIndex = this.answers[this.currentStep] !== undefined
+          ? this.answers[this.currentStep]
+          : null;
+
+        this.quizScreen.render(question, this.currentStep + 1, QUESTIONS.length, selectedOptionIndex);
+
+      }} else if (this.state === 'LOADING') {{
+        if (progressContainer) progressContainer.innerHTML = '';
+        this.loadingScreen.render();
+
+        setTimeout(() => {{
+          this.calculateResult();
+          this.state = 'RESULT';
+          this.render();
+        }}, 1500);
+
+      }} else if (this.state === 'RESULT') {{
+        if (progressContainer) progressContainer.innerHTML = '';
+        this.resultScreen.render(this.finalResult);
+      }}
+    }}
+
+    handleSelect(question, optionIndex) {{
+      const selected = question.options[optionIndex];
+      this.answers[this.currentStep] = optionIndex;
+
+      // Special scoring for Q16 Certification Question
+      if (question.id === 16) {{
+        if (optionIndex === 0) {{
+          // 2개 다 소유: 최고 가점 (+3)
+          this.scores['GWANJANG'] = (this.scores['GWANJANG'] || 0) + 3;
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 3;
+        }} else if (optionIndex === 1) {{
+          // 둘 중 1개 소유: 높은 가점 (+2)
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2;
+          this.scores['DAN_4'] = (this.scores['DAN_4'] || 0) + 2;
+        }} else if (optionIndex === 2) {{
+          // 품/단증 보유: 기본 점수 (+1)
+          this.scores['DAN_1'] = (this.scores['DAN_1'] || 0) + 1;
+        }} else {{
+          // 자격증 없음: 노란 띠 (+1)
+          this.scores['YELLOW_BELT'] = (this.scores['YELLOW_BELT'] || 0) + 1;
+        }}
+      }} else {{
+        const target = selected.target;
+        this.scores[target] = (this.scores[target] || 0) + 1;
+      }}
+
+      if (this.currentStep < QUESTIONS.length - 1) {{
+        this.currentStep++;
+        this.render();
+      }} else {{
+        this.state = 'LOADING';
+        this.render();
+      }}
+    }}
+
+    handlePrev() {{
+      if (this.currentStep > 0) {{
+        this.currentStep--;
+        this.render();
+      }}
+    }}
+
+    handleRestart() {{
+      this.state = 'START';
+      this.currentStep = 0;
+      this.answers = [];
+      this.scores = {{}};
+      this.finalResult = null;
+      this.render();
+    }}
+
+    calculateResult() {{
+      // Find maximum score category
+      let topCategory = 'WHITE_BELT';
+      let maxScore = -1;
+
+      for (const [type, score] of Object.entries(this.scores)) {{
+        if (score > maxScore) {{
+          maxScore = score;
+          topCategory = type;
+        }}
+      }}
+
+      // Check Q16 Certification Answer (index for Q16)
+      const q16Index = QUESTIONS.findIndex(q => q.id === 16);
+      const q16AnswerIndex = q16Index !== -1 ? this.answers[q16Index] : undefined;
+
+      const hasBothCerts = (q16AnswerIndex === 0);
+      const hasOneCert = (q16AnswerIndex === 0 || q16AnswerIndex === 1);
+
+      // Business Rule Enforcement:
+      // 1. 관장님(GWANJANG): 반드시 2개 다 소유해야 가능! (미소유 시 사범님/5단으로 조정)
+      if (topCategory === 'GWANJANG' && !hasBothCerts) {{
+        topCategory = hasOneCert ? 'SABEOM' : 'DAN_5';
+      }}
+
+      // 2. 사범님(SABEOM): 자격증 1개 이상 소유 시 가능! (미소유 시 4단으로 조정)
+      if (topCategory === 'SABEOM' && !hasOneCert) {{
+        topCategory = 'DAN_4';
+      }}
+
+      this.finalResult = RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT;
+    }}
+  }}
+
+  // Auto initialize on load
+  if (document.readyState === 'loading') {{
+    document.addEventListener('DOMContentLoaded', () => new TaekwondoApp());
+  }} else {{
+    new TaekwondoApp();
+  }}
+}})();
+"""
+
+with open('js/bundle.js', 'w', encoding='utf-8') as f:
+    f.write(bundle_code)
+
+print("Generated clean js/bundle.js successfully!")
