@@ -1050,13 +1050,17 @@
           mainTitle = `🥋 [${resultData.userDojang}] 수련생의 인증서`;
         }
 
-        const testUrl = window.location.origin + window.location.pathname;
+        const testUrl = (window.location.origin && window.location.origin.includes('vercel.app'))
+          ? window.location.origin
+          : 'https://level-rouge-gamma.vercel.app';
+
+        const shortDesc = `🔥 [${resultData.subTitle}] (${resultData.topPercent})\n지금 바로 당신의 진짜 레벨을 테스트해보세요!`;
 
         window.Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
             title: mainTitle,
-            description: `부칭호: ${resultData.subTitle} (${resultData.topPercent})\n"${resultData.quote}"\n\n👇 아래 링크를 눌러 당신의 레벨도 측정해보세요!`,
+            description: shortDesc,
             imageUrl: finalImageUrl,
             imageWidth: 600,
             imageHeight: 800,
@@ -1076,13 +1080,6 @@
           buttons: [
             {
               title: '⚡ 나도 레벨 테스트 하기',
-              link: {
-                mobileWebUrl: testUrl,
-                webUrl: testUrl,
-              },
-            },
-            {
-              title: '🥋 레벨 결과 바로가기',
               link: {
                 mobileWebUrl: testUrl,
                 webUrl: testUrl,
