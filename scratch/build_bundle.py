@@ -676,7 +676,7 @@ bundle_code = f"""/**
           certTitle = `🥋 [${{resultData.userDojang}}] 수련생의 레벨 인증서`;
         }}
 
-        const descText = `🔥 내공 레벨: [ ${{resultData.type}} ] (${{resultData.topPercent}})\\n💖 환상의 짝꿍: ${{resultData.bestMatch}}\\n\\n👇 아래 링크를 터치해 당신의 레벨도 확인해보세요!`;
+        const descText = `🔥 내공 레벨: [ ${{resultData.type}} ] (${{resultData.topPercent}})\\n💖 환상의 짝꿍: ${{resultData.bestMatch}}\\n\\n👉 바로가기: https://level-rouge-gamma.vercel.app`;
 
         window.Kakao.Share.sendDefault({{
           objectType: 'feed',
