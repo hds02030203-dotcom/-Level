@@ -461,40 +461,42 @@ bundle_code = f"""/**
     }}
 
     shareKakao(resultData) {{
-      const kakaoKey = window.ENV_KAKAO_JS_KEY || '';
-      if (window.Kakao && !window.Kakao.isInitialized() && kakaoKey) {{
+      const kakaoKey = window.ENV_KAKAO_JS_KEY || '033d0971022acb44ebc09ce26768cfe0';
+      if (window.Kakao) {{
         try {{
-          window.Kakao.init(kakaoKey);
-        }} catch (e) {{
-          console.warn('Kakao init error:', e);
-        }}
-      }}
+          if (!window.Kakao.isInitialized()) {{
+            window.Kakao.init(kakaoKey);
+          }}
 
-      if (window.Kakao && window.Kakao.isInitialized()) {{
-        window.Kakao.Share.sendDefault({{
-          objectType: 'feed',
-          content: {{
-            title: `🥋 나의 태권도 레벨: [${{resultData.type}}]`,
-            description: `${{resultData.subTitle}} | 국기원 통계 ${{resultData.topPercent}}\\n${{resultData.description}}`,
-            imageUrl: window.location.origin + '/assets/og-thumb.png',
-            link: {{
-              mobileWebUrl: window.location.href,
-              webUrl: window.location.href,
-            }},
-          }},
-          buttons: [
-            {{
-              title: '나도 레벨 테스트 하기',
+          window.Kakao.Share.sendDefault({{
+            objectType: 'feed',
+            content: {{
+              title: `🥋 나의 태권도 레벨: [${{resultData.type}}]`,
+              description: `${{resultData.subTitle}} | ${{resultData.topPercent}}\\n${{resultData.description}}`,
+              imageUrl: window.location.origin + '/assets/og-thumb.png',
               link: {{
                 mobileWebUrl: window.location.href,
                 webUrl: window.location.href,
               }},
             }},
-          ],
-        }});
+            buttons: [
+              {{
+                title: '나도 레벨 테스트 하기',
+                link: {{
+                  mobileWebUrl: window.location.href,
+                  webUrl: window.location.href,
+                }},
+              }},
+            ],
+          }});
+        }} catch (e) {{
+          console.warn('Kakao share error:', e);
+          navigator.clipboard.writeText(window.location.href);
+          alert('카카오톡 공유 도메인이 등록되지 않았거나 카카오 SDK 오류가 발생했습니다.\\n(카카오 디벨로퍼스 내 플랫폼 도메인 등록 필요)\\n테스트 링크가 클립보드에 복사되었습니다!');
+        }}
       }} else {{
         navigator.clipboard.writeText(window.location.href);
-        alert('카카오 SDK 키가 등록되지 않았거나 초기화되지 않았습니다. 테스트 링크가 복사되었습니다!');
+        alert('카카오 SDK를 로드할 수 없습니다. 테스트 링크가 복사되었습니다!');
       }}
     }}
 
