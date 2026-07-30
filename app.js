@@ -92,8 +92,8 @@ class App {
     const selectedOption = question.options[optionIndex];
     this.answers[this.currentStep] = optionIndex;
 
-    // Diagnostic Weight Multipliers: Q16, Q17, Q18, Q19 get 3x weight multiplier (+3 pts)!
-    const isCoreDiagnostic = [16, 17, 18, 19].includes(question.id);
+    // Diagnostic Weight Multipliers: Q8, Q9, Q13, Q15, Q16, Q17, Q18, Q19 get 3x weight multiplier (+3 pts)!
+    const isCoreDiagnostic = [8, 9, 13, 15, 16, 17, 18, 19].includes(question.id);
     const weight = isCoreDiagnostic ? 3 : 1;
 
     if (question.id === 16) {

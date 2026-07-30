@@ -1,6 +1,7 @@
 /**
  * 태권도 레벨 테스트 (Taekwondo Level Test) - Question Data & Scoring Matrix
  * All-Age Universal Validated 19 Questions for White Belt ~ Grandmaster Level Differentiation.
+ * Restructured with 4 sharp boundary discriminator questions.
  */
 export const QUESTIONS = [
   {
@@ -75,22 +76,22 @@ export const QUESTIONS = [
   },
   {
     id: 8,
-    question: "나에게 '태권도 도복'이란 어떤 의미인가?",
+    question: "현재 본인이 매고 있거나 가장 최근에 마스터한 띠 단계와 수련 내공은 어디에 해당하나요?",
     options: [
-      { text: '나의 신념과 인생 철학이 정갈하게 담긴 또 하나의 분신.', target: 'GWANJANG' },
-      { text: '입는 순간 자신감이 샘솟고 무도인으로서 정직과 책임을 느끼게 하는 옷.', target: 'DAN_2' },
-      { text: '땀 흘려 정진한 노력과 시간이 깃든 자랑스러운 열정의 훈장.', target: 'POOM_3' },
-      { text: '입는 것만으로도 가슴 설레고 도장에 오고 싶어지는 순백의 무술복.', target: 'WHITE_BELT' }
+      { text: '이제 막 입문하여 기본 도복과 띠를 매는 법, 도장 예의를 익히는 흰 띠 단계.', target: 'WHITE_BELT' },
+      { text: '기본 주춤서기, 주먹지르기, 앞차기를 익히고 노란 띠를 맸거나 수련 중인 단계.', target: 'YELLOW_BELT' },
+      { text: '태극 1~3장 품새와 돌려차기를 익히며 푸른 자신감으로 파란 띠를 매는 단계.', target: 'BLUE_BELT' },
+      { text: '태극 4~8장 및 유품/유단 심사를 앞두고 열정적으로 수련하는 빨간 띠 이상 단계.', target: 'RED_BELT' }
     ]
   },
   {
     id: 9,
-    question: "지친 하루를 마치고 푹 쉴 때 태권도 관련 콘텐츠가 나온다면 당신은?",
+    question: "국기원 정식 승품·승단 심사(1품/1단 이상)를 거쳐 공식 품증 또는 단증을 발급받은 적이 있나요?",
     options: [
-      { text: '국가대표 겨루기/품새 경기를 시청하며 최신 경기 규칙과 기술 궤적을 분석한다.', target: 'PLAYER' },
-      { text: '원로 무도인의 수련 가치관이나 도장 지도 철학 관련 강연을 깊이 있게 청강한다.', target: 'GWANJANG' },
-      { text: '시범단의 화려한 고난도 격파 영상을 시청하며 고난도 기술에 동경을 품는다.', target: 'POOM_2' },
-      { text: '도장 일상 영상이나 발차기 강좌를 보며 다음 수련을 즐겁게 기대한다.', target: 'BLUE_BELT' }
+      { text: '아직 국기원 심사를 보지 않았거나, 승단 심사를 목표로 열심히 준비 중인 예비 유품단자 단계 (빨간 띠 이하).', target: 'RED_BELT' },
+      { text: '국기원 1품~4품 심사에 합격하여 품증(품띠/검은띠)을 당당히 보유하고 있다 (만 15세 미만 유품자).', target: 'POOM_1' },
+      { text: '국기원 1단~5단 심사에 합격하여 정식 검은 띠 단증을 보유하고 있다 (성인/청소년 유단자).', target: 'DAN_1' },
+      { text: '국기원 고단자(4단 이상) 또는 지도자 자격을 갖추고 수련생을 지도할 수 있다.', target: 'SABEOM' }
     ]
   },
   {
@@ -125,12 +126,12 @@ export const QUESTIONS = [
   },
   {
     id: 13,
-    question: "수련하면서 띠의 색상이 점차 바뀌어갈 때 느끼는 보람은?",
+    question: "본인의 수련 연령대 및 보유하고 계신 국기원 자격 구분(품 vs 단)은 어떻게 되시나요?",
     options: [
-      { text: '흰 띠에서 노란 띠, 파란 띠로 묶는 띠의 색상이 바뀌어갈 때의 기쁨.', target: 'YELLOW_BELT' },
-      { text: '땀과 노력이 결실을 맺어 검은 띠를 허리에 매는 감격스러운 순간.', target: 'DAN_1' },
-      { text: '품새와 겨루기 실력이 몰라보게 성장한 나 자신을 체감할 때.', target: 'BLUE_BELT' },
-      { text: '내가 격려하고 가르친 동료 수련생이 심사에 합격하여 기뻐할 때.', target: 'SABEOM' }
+      { text: '만 15세 미만 청소년/어린이 수련생으로서 1품~4품(품띠/검은띠)을 매고 수련 중이다.', target: 'POOM_2' },
+      { text: '만 15세 이상 성인/청소년 유단자로서 정식 1단~5단 검은 띠 단증을 보유하고 수련 중이다.', target: 'DAN_2' },
+      { text: '성인 유단자이자 지도자(사범/관장)로서 도장 운영 및 수련생 지도를 담당한다.', target: 'SABEOM' },
+      { text: '아직 품증이나 단증이 없는 유소년/성인 일반 색깔 띠 수련생이다.', target: 'YELLOW_BELT' }
     ]
   },
   {
@@ -145,12 +146,12 @@ export const QUESTIONS = [
   },
   {
     id: 15,
-    question: "도장 밖 일상생활에서 나도 모르게 나타나는 태권도 수련생의 습관은?",
+    question: "겨루기 또는 품새 분야에서 정식 선수 등록을 하였거나 대회 참가/선수단 훈련 경험이 있으신가요?",
     options: [
-      { text: '문이 열리거나 사람을 마주할 때 나도 모르게 바르게 인사하는 자세가 나온다.', target: 'POOM_1' },
-      { text: '정리가 안 된 신발이나 물건을 보면 정갈하게 각을 맞춰 정돈한다.', target: 'YELLOW_BELT' },
-      { text: '높이 있는 버튼을 누르거나 움직일 때 가벼운 무도 스텝이 나온다.', target: 'RED_BELT' },
-      { text: '길을 걸을 때도 바른 척추 자세와 깊은 호흡을 유지하며 서기를 의식한다.', target: 'DAN_4' }
+      { text: '대한태권도협회/시도협회 정식 선수로 등록되어 체계적인 겨루기/품새 엘리트 훈련을 받고 있거나 선수 출신이다.', target: 'PLAYER' },
+      { text: '도장 대표 시범단 또는 대회 출전 선수단으로 뽑혀 전국/지역 태권도 대회에 정기적으로 참가한다.', target: 'PLAYER' },
+      { text: '선수 등록은 하지 않았지만 일반 도장에서 동료들과 겨루기/품새 수련을 깊이 있게 즐긴다.', target: 'DAN_3' },
+      { text: '대회 참가보다는 건강 증진과 취미 수련 목적으로 즐겁게 태권도를 배우고 있다.', target: 'YELLOW_BELT' }
     ]
   },
   {
