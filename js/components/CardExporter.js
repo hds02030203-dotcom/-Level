@@ -1,0 +1,121 @@
+/**
+ * CardExporter Component
+ * Renders high-resolution Canvas and exports PNG image card for one-click download.
+ */
+export class CardExporter {
+  static exportCardAsPNG(resultData) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Canvas resolution (Mobile friendly high-res card)
+    canvas.width = 600;
+    canvas.height = 800;
+
+    // Background Gradient (Deep Navy Dojang)
+    const bgGradient = ctx.createLinearGradient(0, 0, 0, 800);
+    bgGradient.addColorStop(0, '#0F172A');
+    bgGradient.addColorStop(1, '#0B132B');
+    ctx.fillStyle = bgGradient;
+    ctx.fillRect(0, 0, 600, 800);
+
+    // Border Frame (Gold Accent)
+    ctx.strokeStyle = '#F59E0B';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(20, 20, 560, 760);
+
+    // Inner Line Frame
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 30, 540, 740);
+
+    // Header Title
+    ctx.fillStyle = '#94A3B8';
+    ctx.font = 'bold 20px Pretendard, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
+
+    // Top Percent Tag Pill
+    ctx.fillStyle = '#F59E0B';
+    ctx.beginPath();
+    ctx.roundRect(190, 110, 220, 36, 18);
+    ctx.fill();
+
+    ctx.fillStyle = '#0F172A';
+    ctx.font = 'bold 18px Pretendard, sans-serif';
+    ctx.fillText(`🔥 국기원 통계 ${resultData.topPercent}`, 300, 134);
+
+    // Belt Emblem / Icon
+    ctx.font = '80px sans-serif';
+    ctx.fillText(resultData.icon, 300, 240);
+
+    // Result Level Title
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '900 38px Pretendard, sans-serif';
+    ctx.fillText(resultData.type, 300, 310);
+
+    // Sub Title
+    ctx.fillStyle = '#FBBF24';
+    ctx.font = 'bold 24px Pretendard, sans-serif';
+    ctx.fillText(`[${resultData.subTitle}]`, 300, 355);
+
+    // Description (Multi-line wrap)
+    ctx.fillStyle = '#CBD5E1';
+    ctx.font = '16px Pretendard, sans-serif';
+    CardExporter.wrapText(ctx, resultData.description, 300, 420, 480, 26);
+
+    // Quote
+    ctx.fillStyle = '#F59E0B';
+    ctx.font = 'italic 16px Pretendard, sans-serif';
+    ctx.fillText(resultData.quote, 300, 580);
+
+    // Chemistry Box Background
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.fillRect(60, 620, 480, 90);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeRect(60, 620, 480, 90);
+
+    // Best Match
+    ctx.fillStyle = '#34D399';
+    ctx.font = 'bold 16px Pretendard, sans-serif';
+    ctx.fillText(`💖 최고의 궁합: ${resultData.bestMatch}`, 180, 670);
+
+    // Worst Match
+    ctx.fillStyle = '#F87171';
+    ctx.font = 'bold 16px Pretendard, sans-serif';
+    ctx.fillText(`💔 최악의 궁합: ${resultData.worstMatch}`, 420, 670);
+
+    // Footer Watermark
+    ctx.fillStyle = '#64748B';
+    ctx.font = '14px Pretendard, sans-serif';
+    ctx.fillText('https://github.com/hds02030203-dotcom/-Level.git', 300, 750);
+
+    // Convert Canvas to PNG and Trigger Download
+    const dataUrl = canvas.toDataURL('image/png');
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = dataUrl;
+    downloadAnchor.download = `태권도_레벨_인증서_${resultData.type.replace(/\s+/g, '_')}.png`;
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+  }
+
+  static wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let line = '';
+    let currentY = y;
+
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + ' ';
+      const metrics = ctx.measureText(testLine);
+      const testWidth = metrics.width;
+      if (testWidth > maxWidth && n > 0) {
+        ctx.fillText(line, x, currentY);
+        line = words[n] + ' ';
+        currentY += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    ctx.fillText(line, x, currentY);
+  }
+}
