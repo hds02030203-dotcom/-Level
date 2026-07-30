@@ -12,7 +12,7 @@ export class ResultCardComponent {
 
     this.container.innerHTML = `
       <div class="certificate-card" id="certificateCardNode">
-        <div class="top-percent-tag">🔥 국기원 통계 ${resultData.topPercent}</div>
+        <div class="top-percent-tag">🔥 ${resultData.topPercent}</div>
         <div class="belt-badge-icon">${resultData.icon}</div>
         <h2 class="result-belt-title">${resultData.type}</h2>
         <div class="result-subtitle">부칭호: ${resultData.subTitle}</div>

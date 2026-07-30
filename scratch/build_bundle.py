@@ -77,7 +77,7 @@ bundle_code = f"""/**
 
       ctx.fillStyle = '#0F172A';
       ctx.font = 'bold 18px Pretendard, sans-serif';
-      ctx.fillText(`🔥 국기원 통계 ${{resultData.topPercent}}`, 300, 134);
+      ctx.fillText(`🔥 ${{resultData.topPercent}}`, 300, 134);
 
       // Belt Icon
       ctx.font = '80px sans-serif';
@@ -381,7 +381,7 @@ bundle_code = f"""/**
       this.container.innerHTML = `
         <div class="result-view">
           <div class="certificate-card">
-            <div class="top-percent-tag">🔥 국기원 통계 ${{resultData.topPercent}}</div>
+            <div class="top-percent-tag">🔥 ${{resultData.topPercent}}</div>
             <div class="belt-badge-icon">${{resultData.icon}}</div>
             <h2 class="result-belt-title">${{resultData.type}}</h2>
             <div class="result-subtitle">부칭호: ${{resultData.subTitle}}</div>

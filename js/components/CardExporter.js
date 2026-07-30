@@ -42,7 +42,7 @@ export class CardExporter {
 
     ctx.fillStyle = '#0F172A';
     ctx.font = 'bold 18px Pretendard, sans-serif';
-    ctx.fillText(`🔥 국기원 통계 ${resultData.topPercent}`, 300, 134);
+    ctx.fillText(`🔥 ${resultData.topPercent}`, 300, 134);
 
     // Belt Emblem / Icon
     ctx.font = '80px sans-serif';
