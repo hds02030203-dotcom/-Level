@@ -93,8 +93,10 @@ export class ShareSectionComponent {
   }
 
   shareInstagramStory(resultData) {
+    // 1. Trigger PNG download first
     CardExporter.exportInstaStoryPNG(resultData);
 
+    // 2. Copy URL to clipboard
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href).catch(() => {});
     }
@@ -104,17 +106,16 @@ export class ShareSectionComponent {
     const isAndroid = /android/i.test(userAgent);
 
     if (isIOS || isAndroid) {
-      alert('📸 결과 카드 이미지가 다운로드되었고, 링크가 클립보드에 복사되었습니다!\n\n인스타그램 스토리가 열리면 갤러리에서 저장된 인증서 이미지를 선택하고, [링크 스티커]에 복사된 주소를 붙여넣어 공유해 보세요!');
+      // Alert dialog pauses execution until user taps [OK], giving mobile browser plenty of time to save the file
+      alert('📸 9:16 인스타그램 스토리 인증서가 다운로드되었고, 테스트 링크가 복사되었습니다!\n\n[확인]을 누르면 인스타그램 스토리 카메라로 이동합니다.\n(스토리 갤러리에서 저장된 이미지를 선택하고 링크 스티커를 붙여보세요!)');
 
-      setTimeout(() => {
-        if (isIOS) {
-          window.location.href = 'instagram://story-camera';
-        } else if (isAndroid) {
-          window.location.href = 'intent://story-camera/#Intent;scheme=instagram;package=com.instagram.android;end';
-        }
-      }, 800);
+      if (isIOS) {
+        window.location.href = 'instagram://story-camera';
+      } else if (isAndroid) {
+        window.location.href = 'intent://story-camera/#Intent;scheme=instagram;package=com.instagram.android;end';
+      }
     } else {
-      alert('📸 결과 카드 이미지가 저장되었으며, 테스트 링크가 클립보드에 복사되었습니다!\n(인스타그램 앱 자동 실행은 모바일 기기에서만 지원됩니다.)');
+      alert('📸 9:16 인스타그램 스토리 인증서 이미지가 다운로드되었으며, 테스트 링크가 클립보드에 복사되었습니다!\n(인스타그램 앱 자동 이동은 모바일 기기에서 지원됩니다.)');
     }
   }
 

@@ -863,13 +863,25 @@ bundle_code = f"""/**
 
     shareInstagramStory(resultData) {{
       CardExporter.exportInstaStoryPNG(resultData);
-      navigator.clipboard.writeText(window.location.href);
 
-      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if (isMobile) {{
-        setTimeout(() => {{
+      if (navigator.clipboard) {{
+        navigator.clipboard.writeText(window.location.href).catch(() => {{}});
+      }}
+
+      const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+      const isAndroid = /android/i.test(userAgent);
+
+      if (isIOS || isAndroid) {{
+        alert('📸 9:16 인스타그램 스토리 인증서가 다운로드되었고, 테스트 링크가 복사되었습니다!\\n\\n[확인]을 누르면 인스타그램 스토리 카메라로 이동합니다.\\n(스토리 갤러리에서 저장된 이미지를 선택하고 링크 스티커를 붙여보세요!)');
+
+        if (isIOS) {{
           window.location.href = 'instagram://story-camera';
-        }}, 1500);
+        }} else if (isAndroid) {{
+          window.location.href = 'intent://story-camera/#Intent;scheme=instagram;package=com.instagram.android;end';
+        }}
+      }} else {{
+        alert('📸 9:16 인스타그램 스토리 인증서 이미지가 다운로드되었으며, 테스트 링크가 클립보드에 복사되었습니다!\\n(인스타그램 앱 자동 이동은 모바일 기기에서 지원됩니다.)');
       }}
     }}
   }}
