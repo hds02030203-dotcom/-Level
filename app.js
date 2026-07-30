@@ -173,12 +173,13 @@ class App {
       }
     }
 
-    // 2. Discriminator Question Inputs
+    const q9Idx = QUESTIONS.findIndex(q => q.id === 9);
     const q16Idx = QUESTIONS.findIndex(q => q.id === 16);
     const q17Idx = QUESTIONS.findIndex(q => q.id === 17);
     const q18Idx = QUESTIONS.findIndex(q => q.id === 18);
     const q19Idx = QUESTIONS.findIndex(q => q.id === 19);
 
+    const q9Ans = q9Idx !== -1 ? this.answers[q9Idx] : undefined;   // 0: red/below, 1: poom, 2: dan, 3: master
     const q16Ans = q16Idx !== -1 ? this.answers[q16Idx] : undefined; // 0: 2certs, 1: 1cert, 2: dan, 3: none
     const q17Ans = q17Idx !== -1 ? this.answers[q17Idx] : undefined; // 0: high Dan, 1: mid Dan, 2: basic, 3: stance
     const q18Ans = q18Idx !== -1 ? this.answers[q18Idx] : undefined; // 0: 10y+, 1: 3-10y, 2: 6m-3y, 3: <6m
@@ -198,7 +199,7 @@ class App {
       topCategory = 'PLAYER';
     }
     // RULE 3: BLACK BELT DAN TIER (1단 ~ 5단)
-    else if (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1)) {
+    else if (q9Ans === 2 || (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1))) {
       if (q17Ans === 0 && q18Ans === 0) {
         topCategory = 'DAN_5';
       } else if (q17Ans === 0 || q18Ans === 0 || (categoryScores['DAN_4'] || 0) >= 2) {
@@ -212,10 +213,10 @@ class App {
       }
     }
     // RULE 4: POOM TIER (1품 ~ 4품)
-    else if (poomScore > danScore && poomScore >= colorBeltScore) {
+    else if (q9Ans === 1 || (poomScore > danScore && (poomScore >= colorBeltScore || q9Ans === 1))) {
       if ((categoryScores['POOM_4'] || 0) >= 2 || (q17Ans === 1 && q19Ans === 2)) {
         topCategory = 'POOM_4';
-      } else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1) {
+      } else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1 || q19Ans === 2) {
         topCategory = 'POOM_3';
       } else if ((categoryScores['POOM_2'] || 0) >= 2) {
         topCategory = 'POOM_2';

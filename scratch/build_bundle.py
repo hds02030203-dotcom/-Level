@@ -1116,11 +1116,13 @@ bundle_code = f"""/**
       }}
 
       // 2. Discriminator Question Inputs
+      const q9Idx = QUESTIONS.findIndex(q => q.id === 9);
       const q16Idx = QUESTIONS.findIndex(q => q.id === 16);
       const q17Idx = QUESTIONS.findIndex(q => q.id === 17);
       const q18Idx = QUESTIONS.findIndex(q => q.id === 18);
       const q19Idx = QUESTIONS.findIndex(q => q.id === 19);
 
+      const q9Ans = q9Idx !== -1 ? this.answers[q9Idx] : undefined;
       const q16Ans = q16Idx !== -1 ? this.answers[q16Idx] : undefined;
       const q17Ans = q17Idx !== -1 ? this.answers[q17Idx] : undefined;
       const q18Ans = q18Idx !== -1 ? this.answers[q18Idx] : undefined;
@@ -1135,7 +1137,7 @@ bundle_code = f"""/**
         topCategory = 'SABEOM';
       }} else if (playerScore >= 3 || (q19Ans === 1 && playerScore >= 2)) {{
         topCategory = 'PLAYER';
-      }} else if (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1)) {{
+      }} else if (q9Ans === 2 || (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1))) {{
         if (q17Ans === 0 && q18Ans === 0) {{
           topCategory = 'DAN_5';
         }} else if (q17Ans === 0 || q18Ans === 0 || (categoryScores['DAN_4'] || 0) >= 2) {{
@@ -1147,10 +1149,10 @@ bundle_code = f"""/**
         }} else {{
           topCategory = 'DAN_1';
         }}
-      }} else if (poomScore > danScore && poomScore >= colorBeltScore) {{
+      }} else if (q9Ans === 1 || (poomScore > danScore && (poomScore >= colorBeltScore || q9Ans === 1))) {{
         if ((categoryScores['POOM_4'] || 0) >= 2 || (q17Ans === 1 && q19Ans === 2)) {{
           topCategory = 'POOM_4';
-        }} else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1) {{
+        }} else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1 || q19Ans === 2) {{
           topCategory = 'POOM_3';
         }} else if ((categoryScores['POOM_2'] || 0) >= 2) {{
           topCategory = 'POOM_2';
