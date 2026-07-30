@@ -38,8 +38,8 @@ export const QUESTIONS = [
     options: [
       { text: '시선 처리, 호흡의 조절, 그리고 동작 끝의 폭발적인 절제미와 시선 집중.', target: 'GWANJANG' },
       { text: '동작의 선과 각도, 그리고 주춤서기와 굽히기 서기의 정석적인 간격.', target: 'DAN_3' },
-      { text: '품새 선과 순서를 틀리지 않고 크게 기합을 넣는 당찬 패기.', target: 'POOM_3' },
-      { text: '사범님이 앞에서 시범 보이는 손동작을 똑같이 따라 해보려고 애쓴다.', target: 'WHITE_BELT' }
+      { text: '태극 1~3장의 순서와 정교한 절차를 틀리지 않고 구사하는 것.', target: 'BLUE_BELT' },
+      { text: '사범님이 시범 보이는 주먹지르기와 기본 발차기를 따라 해보려 노력한다.', target: 'YELLOW_BELT' }
     ]
   },
   {

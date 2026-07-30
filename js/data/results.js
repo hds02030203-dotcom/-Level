@@ -13,8 +13,31 @@ export const RESULT_TYPES = {
     accentColor: '#E2E8F0',
     description: '이제 막 태권도의 매력을 발견한 파릇파릇한 입문자입니다! 도복을 입는 것만으로도 가슴이 웅장해지며, 앞으로 익혀나갈 도복 띠와 발차기에 대한 호기심과 열정이 최고조에 달해 있습니다.',
     bestMatch: '솔선수범 리더 사범님',
-    worstMatch: '승부사의 기상 선수',
     quote: '"모든 장인은 한때 초보자였다."'
+  },
+  YELLOW_BELT: {
+    id: 'YELLOW_BELT',
+    type: '노란 띠',
+    subTitle: '기초의 새싹',
+    topPercent: '상위 90%',
+    icon: '💛',
+    beltColor: '#EAB308',
+    accentColor: '#CA8A04',
+    description: '기본 주춤서기와 올바른 주먹지르기, 그리고 힘찬 앞차기의 재미를 깨달은 기초의 새싹입니다! 도장에서 예의와 기본 자세를 하나씩 익히며 당차고 씩씩하게 성장하고 있습니다.',
+    bestMatch: '솔선수범 리더 사범님',
+    quote: '"뿌리 깊은 나무는 바람에 흔들리지 않는다."'
+  },
+  BLUE_BELT: {
+    id: 'BLUE_BELT',
+    type: '파란 띠',
+    subTitle: '푸른 자신감',
+    topPercent: '상위 80%',
+    icon: '💙',
+    beltColor: '#3B82F6',
+    accentColor: '#1D4ED8',
+    description: '태극 1~3장 품새와 정교한 돌려차기를 사범님 앞에서 선보일 수 있는 푸른 자신감의 소유자입니다! 동작에 절도가 생기고 다음 단계인 빨간 띠와 유품/유단 도전을 향해 자신 있게 정진합니다.',
+    bestMatch: '단단한 무도인 1단',
+    quote: '"자신감은 끊임없는 수련에서 나온다."'
   },
   RED_BELT: {
     id: 'RED_BELT',
@@ -26,7 +49,6 @@ export const RESULT_TYPES = {
     accentColor: '#DC2626',
     description: '기본 품새와 힘찬 발차기에 재미를 붙인 유망주입니다! 승급 시험과 유품/유단 도전을 향한 승부욕과 수련 의지가 매우 충만하며, 도장에서 가장 큰 목소리로 기합을 넣는 열정파입니다.',
     bestMatch: '어린이 고수 3품',
-    worstMatch: '태권도 마스터 관장님',
     quote: '"열정은 수련의 가장 강력한 무기이다."'
   },
   POOM_1: {

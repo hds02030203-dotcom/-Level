@@ -34,12 +34,14 @@
 | 레벨 유형 | 대표 띠 색상 | Accent Color | Hex / Gradient | Visual Effect |
 | :--- | :--- | :--- | :--- | :--- |
 | 🤍 **1. 흰 띠** | Pure White Belt | `#E2E8F0` | `linear-gradient(135deg, #FFFFFF, #E2E8F0)` | 은은한 순백색 펄 그라데이션 |
-| ❤️ **2. 빨간 띠** | Passion Red Belt | `#EF4444` | `linear-gradient(135deg, #FF6B6B, #DC2626)` | 정열적인 비비드 레드 |
-| 🏅 **3. 유품자 (1~4품)**| Red & Black Poom | `#DC2626` / `#18181B` | `linear-gradient(90deg, #DC2626 50%, #18181B 50%)` | 품 띠 특유의 흑/홍 2색 패턴 |
-| 🥋 **4. 유단자 (1~5단)**| Black Belt Gold | `#18181B` / `#F59E0B` | `linear-gradient(135deg, #27272A, #090D16)` | 검은 띠 & 골드 자수 포인트 |
-| 🥊 **5. 선수** | Competitor Mat | `#2563EB` / `#EF4444` | `linear-gradient(135deg, #1D4ED8, #DC2626)` | 강렬한 경기장 청/홍 조화 |
-| 🥋 **6. 사범님** | Leader Navy Gold | `#0F172A` / `#10B981` | `linear-gradient(135deg, #1E293B, #0F172A)` | 중후한 리더쉽 네이비 & 에메랄드 |
-| 👑 **7. 관장님** | Royal Gold Master | `#F59E0B` / `#D97706` | `linear-gradient(135deg, #F59E0B, #B45309)` | 럭셔리 골드 네온 림라이트 |
+| 💛 **2. 노란 띠** | Bright Yellow Belt | `#EAB308` | `linear-gradient(135deg, #FDE047, #CA8A04)` | 화사한 비비드 옐로우 |
+| 💙 **3. 파란 띠** | Confident Blue Belt | `#3B82F6` | `linear-gradient(135deg, #60A5FA, #1D4ED8)` | 청량하고 당찬 일렉트릭 블루 |
+| ❤️ **4. 빨간 띠** | Passion Red Belt | `#EF4444` | `linear-gradient(135deg, #FF6B6B, #DC2626)` | 정열적인 비비드 레드 |
+| 🏅 **5. 유품자 (1~4품)**| Red & Black Poom | `#DC2626` / `#18181B` | `linear-gradient(90deg, #DC2626 50%, #18181B 50%)` | 품 띠 특유의 흑/홍 2색 패턴 |
+| 🥋 **6. 유단자 (1~5단)**| Black Belt Gold | `#18181B` / `#F59E0B` | `linear-gradient(135deg, #27272A, #090D16)` | 검은 띠 & 골드 자수 포인트 |
+| 🥊 **7. 선수** | Competitor Mat | `#2563EB` / `#EF4444` | `linear-gradient(135deg, #1D4ED8, #DC2626)` | 강렬한 경기장 청/홍 조화 |
+| 🥋 **8. 사범님** | Leader Navy Gold | `#0F172A` / `#10B981` | `linear-gradient(135deg, #1E293B, #0F172A)` | 중후한 리더쉽 네이비 & 에메랄드 |
+| 👑 **9. 관장님** | Royal Gold Master | `#F59E0B` / `#D97706` | `linear-gradient(135deg, #F59E0B, #B45309)` | 럭셔리 골드 네온 림라이트 |
 
 ---
 
