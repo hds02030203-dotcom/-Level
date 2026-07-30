@@ -373,10 +373,10 @@
       id: 16,
       question: "지도자 및 전문 자격증(국제태권도사범 자격증, 생활스포츠지도사 등) 보유 현황은?",
       options: [
-        { text: '국제태권도사범 자격증 및 생활스포츠지도사(태권도) 등 정식 자격을 갖추었다.', target: 'SABEOM' },
-        { text: '생활스포츠지도사 자격증을 보유 중이거나 취득을 위해 열심히 준비하고 있다.', target: 'DAN_4' },
-        { text: '국기원 품/단증을 보유하고 있으며, 향후 지도자 자격에 관심이 있다.', target: 'DAN_1' },
-        { text: '아직 자격증은 없지만 도장에서 즐겁게 수련하며 하나씩 배워가고 있다.', target: 'YELLOW_BELT' }
+        { text: '국제태권도사범 자격증과 생활스포츠지도사(태권도) 자격증을 둘 다 소유하고 있다.', target: 'GWANJANG' },
+        { text: '국가 공인 생활스포츠지도사(태권도) 자격증을 소유하고 있다. (가점 우대)', target: 'SABEOM' },
+        { text: '국기원 국제태권도사범 자격증을 소유하고 있다.', target: 'SABEOM' },
+        { text: '아직 지도자 자격증은 없으나 품/단증을 가지고 열심히 수련 중이다.', target: 'DAN_1' }
       ]
     },
     {
@@ -882,8 +882,28 @@
       const selected = question.options[optionIndex];
       this.answers[this.currentStep] = optionIndex;
 
-      const target = selected.target;
-      this.scores[target] = (this.scores[target] || 0) + 1;
+      // Special scoring for Q16 Certification Question
+      if (question.id === 16) {
+        if (optionIndex === 0) {
+          // 둘 다 소유: 관장님 +3, 사범님 +2.5
+          this.scores['GWANJANG'] = (this.scores['GWANJANG'] || 0) + 3;
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2.5;
+        } else if (optionIndex === 1) {
+          // 생활스포츠지도사 (가점 높음 +2.5): 사범님 +2.5, 4단 +2
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2.5;
+          this.scores['DAN_4'] = (this.scores['DAN_4'] || 0) + 2;
+        } else if (optionIndex === 2) {
+          // 국제태권도사범 자격증 (+1.5): 사범님 +1.5, 3단 +1
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 1.5;
+          this.scores['DAN_3'] = (this.scores['DAN_3'] || 0) + 1;
+        } else {
+          // 자격증 없음: 1단 +1
+          this.scores['DAN_1'] = (this.scores['DAN_1'] || 0) + 1;
+        }
+      } else {
+        const target = selected.target;
+        this.scores[target] = (this.scores[target] || 0) + 1;
+      }
 
       if (this.currentStep < QUESTIONS.length - 1) {
         this.currentStep++;
@@ -911,6 +931,7 @@
     }
 
     calculateResult() {
+      // Find maximum score category
       let topCategory = 'WHITE_BELT';
       let maxScore = -1;
 
@@ -919,6 +940,25 @@
           maxScore = score;
           topCategory = type;
         }
+      }
+
+      // Check Q16 Certification Answer (index for Q16)
+      const q16Index = QUESTIONS.findIndex(q => q.id === 16);
+      const q16AnswerIndex = q16Index !== -1 ? this.answers[q16Index] : undefined;
+
+      const hasBothCerts = (q16AnswerIndex === 0);
+      const hasSportsLeader = (q16AnswerIndex === 0 || q16AnswerIndex === 1);
+      const hasMasterCert = (q16AnswerIndex === 0 || q16AnswerIndex === 2);
+
+      // Business Rule Enforcement:
+      // 1. 관장님(GWANJANG): 반드시 국제태권도사범 자격증과 생활스포츠지도사 둘 다 소유해야 가능!
+      if (topCategory === 'GWANJANG' && !hasBothCerts) {
+        topCategory = hasMasterCert ? 'SABEOM' : 'DAN_5';
+      }
+
+      // 2. 사범님(SABEOM): 국제태권도사범 자격증만 갖고 있거나 둘 다 소유해야 가능!
+      if (topCategory === 'SABEOM' && (!hasMasterCert && !hasBothCerts)) {
+        topCategory = hasSportsLeader ? 'DAN_5' : 'DAN_4';
       }
 
       this.finalResult = RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT;

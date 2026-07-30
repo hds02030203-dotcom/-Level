@@ -157,10 +157,10 @@ export const QUESTIONS = [
     id: 16,
     question: "지도자 및 전문 자격증(국제태권도사범 자격증, 생활스포츠지도사 등) 보유 현황은?",
     options: [
-      { text: '국제태권도사범 자격증 및 생활스포츠지도사(태권도) 등 정식 자격을 갖추었다.', target: 'SABEOM' },
-      { text: '생활스포츠지도사 자격증을 보유 중이거나 취득을 위해 열심히 준비하고 있다.', target: 'DAN_4' },
-      { text: '국기원 품/단증을 보유하고 있으며, 향후 지도자 자격에 관심이 있다.', target: 'DAN_1' },
-      { text: '아직 자격증은 없지만 도장에서 즐겁게 수련하며 하나씩 배워가고 있다.', target: 'YELLOW_BELT' }
+      { text: '국제태권도사범 자격증과 생활스포츠지도사(태권도) 자격증을 둘 다 소유하고 있다.', target: 'GWANJANG', bonus: { GWANJANG: 3, SABEOM: 2.5 } },
+      { text: '국가 공인 생활스포츠지도사(태권도) 자격증을 소유하고 있다. (가점 우대)', target: 'SABEOM', bonus: { SABEOM: 2.5, DAN_4: 2 } },
+      { text: '국기원 국제태권도사범 자격증을 소유하고 있다.', target: 'SABEOM', bonus: { SABEOM: 1.5, DAN_3: 1 } },
+      { text: '아직 지도자 자격증은 없으나 품/단증을 가지고 열심히 수련 중이다.', target: 'DAN_1', bonus: { DAN_1: 1 } }
     ]
   },
   {
