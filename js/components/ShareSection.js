@@ -84,7 +84,7 @@ export class ShareSectionComponent {
       window.Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-          title: `🥋 태권도 Level-test 결과: ${resultData.type} (${resultData.subTitle})`,
+          title: `🥋 태권도 레벨 테스트 결과: ${resultData.type} (${resultData.subTitle})`,
           description: `나의 태권도 내공은 국기원 통계 ${resultData.topPercent}! 지금 당신의 레벨을 측정해보세요.`,
           imageUrl: 'https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_sharing_btn_medium.png',
           link: {

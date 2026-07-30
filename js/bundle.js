@@ -402,7 +402,7 @@
       ctx.fillStyle = '#94A3B8';
       ctx.font = 'bold 20px Pretendard, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🥋 태권도 Level-test 공식 인증서', 300, 80);
+      ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
 
       // Top % Tag Pill
       ctx.fillStyle = '#F59E0B';
@@ -714,7 +714,7 @@
         window.Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
-            title: `🥋 태권도 Level-test 결과: ${resultData.type} (${resultData.subTitle})`,
+            title: `🥋 태권도 레벨 테스트 결과: ${resultData.type} (${resultData.subTitle})`,
             description: `나의 태권도 내공은 국기원 통계 ${resultData.topPercent}! 지금 당신의 레벨을 측정해보세요.`,
             imageUrl: 'https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_sharing_btn_medium.png',
             link: {
@@ -785,7 +785,8 @@
       headerContainer.innerHTML = `
         <header class="site-header">
           <a href="#" class="brand-logo" id="headerLogoBtn">
-            <span>🥋 태권도 Level-test</span>
+            <span>🥋 태권도 LEVEL</span>
+            <span class="brand-badge">TEST</span>
           </a>
           <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드">🔇</button>
         </header>

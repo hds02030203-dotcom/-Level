@@ -15,7 +15,8 @@ export class HeaderComponent {
     this.container.innerHTML = `
       <header class="site-header">
         <a href="#" class="brand-logo" id="headerLogoBtn">
-          <span>🥋 태권도 Level-test</span>
+          <span>🥋 태권도 LEVEL</span>
+          <span class="brand-badge">TEST</span>
         </a>
         <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드 켜기/끄기">
           ${this.isMuted ? '🔇' : '🔊'}
