@@ -8,6 +8,7 @@ import { RESULT_TYPES } from './js/data/results.js';
 import { HeaderComponent } from './js/components/Header.js';
 import { StartScreenComponent } from './js/components/StartScreen.js';
 import { QuizScreenComponent } from './js/components/QuizScreen.js';
+import { LoadingScreenComponent } from './js/components/LoadingScreen.js';
 import { ResultCardComponent } from './js/components/ResultCard.js';
 import { ShareSectionComponent } from './js/components/ShareSection.js';
 
@@ -45,6 +46,8 @@ class App {
       onPrevStep: () => this.handlePrevStep()
     });
 
+    this.loadingScreen = new LoadingScreenComponent('mainContainer');
+
     this.resultCard = new ResultCardComponent('resultCardContainer');
 
     this.shareSection = new ShareSectionComponent('shareContainer', {
@@ -73,13 +76,8 @@ class App {
 
     } else if (this.state === 'LOADING') {
       document.getElementById('progressContainer').innerHTML = '';
-      mainContainer.innerHTML = `
-        <div class="glass-card loading-view">
-          <div class="spinner"></div>
-          <h2 style="font-size: 1.3rem; font-weight: 800; color: #fff;">내 태권도 내공 측정 중...</h2>
-          <p style="font-size: 0.9rem; color: var(--text-sub);">국기원 품·단 통계 데이터를 기준으로 분석하고 있습니다.</p>
-        </div>
-      `;
+      this.loadingScreen.container = mainContainer;
+      this.loadingScreen.render();
 
       setTimeout(() => {
         this.calculateResult();
