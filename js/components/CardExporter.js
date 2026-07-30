@@ -3,7 +3,7 @@
  * Renders high-resolution Canvas and exports PNG image card linked with User Name & Dojang.
  */
 export class CardExporter {
-  static exportCardAsPNG(resultData) {
+  static renderCanvas(resultData) {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
@@ -97,7 +97,11 @@ export class CardExporter {
     ctx.font = '14px Pretendard, sans-serif';
     ctx.fillText('🥋 태권도 레벨 테스트 (Taekwondo Level Test)', 300, 750);
 
-    // Convert Canvas to PNG and Trigger Download
+    return canvas;
+  }
+
+  static exportCardAsPNG(resultData) {
+    const canvas = CardExporter.renderCanvas(resultData);
     const dataUrl = canvas.toDataURL('image/png');
     const downloadAnchor = document.createElement('a');
     downloadAnchor.href = dataUrl;
@@ -106,6 +110,15 @@ export class CardExporter {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
+  }
+
+  static getCanvasBlob(resultData) {
+    return new Promise((resolve) => {
+      const canvas = CardExporter.renderCanvas(resultData);
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/png');
+    });
   }
 
   static wrapText(ctx, text, x, y, maxWidth, lineHeight) {

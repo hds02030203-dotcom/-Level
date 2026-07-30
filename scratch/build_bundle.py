@@ -36,7 +36,7 @@ bundle_code = f"""/**
   // 3. CANVAS RESULT CARD EXPORTER
   // --------------------------------------------------------------------------
   class CardExporter {{
-    static exportCardAsPNG(resultData) {{
+    static renderCanvas(resultData) {{
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
@@ -121,7 +121,16 @@ bundle_code = f"""/**
       ctx.font = 'bold 18px Pretendard, sans-serif';
       ctx.fillText(`💖 환상의 짝꿍: ${{resultData.bestMatch}}`, 300, 672);
 
-      // Download trigger
+      // Footer Watermark
+      ctx.fillStyle = '#64748B';
+      ctx.font = '14px Pretendard, sans-serif';
+      ctx.fillText('🥋 태권도 레벨 테스트 (Taekwondo Level Test)', 300, 750);
+
+      return canvas;
+    }}
+
+    static exportCardAsPNG(resultData) {{
+      const canvas = CardExporter.renderCanvas(resultData);
       const dataUrl = canvas.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = dataUrl;
@@ -130,6 +139,15 @@ bundle_code = f"""/**
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }}
+
+    static getCanvasBlob(resultData) {{
+      return new Promise((resolve) => {{
+        const canvas = CardExporter.renderCanvas(resultData);
+        canvas.toBlob((blob) => {{
+          resolve(blob);
+        }}, 'image/png');
+      }});
     }}
 
     static wrapText(ctx, text, x, y, maxWidth, lineHeight) {{
@@ -614,67 +632,89 @@ bundle_code = f"""/**
       }}
     }}
 
-    shareKakao(resultData) {{
+    async shareKakao(resultData) {{
       const kakaoKey = window.ENV_KAKAO_JS_KEY || '033d0971022acb44ebc09ce26768cfe0';
-      if (window.Kakao) {{
-        try {{
-          if (!window.Kakao.isInitialized()) {{
-            window.Kakao.init(kakaoKey);
-          }}
-
-          let mainTitle = `🥋 나의 태권도 내공 레벨: [ ${{resultData.type}} ]`;
-          if (resultData.userName && resultData.userDojang) {{
-            mainTitle = `🥋 [${{resultData.userDojang}}] ${{resultData.userName}} 님의 내공 레벨: [ ${{resultData.type}} ]`;
-          }} else if (resultData.userName) {{
-            mainTitle = `🥋 ${{resultData.userName}} 님의 내공 레벨: [ ${{resultData.type}} ]`;
-          }} else if (resultData.userDojang) {{
-            mainTitle = `🥋 [${{resultData.userDojang}}] 수련생의 내공 레벨: [ ${{resultData.type}} ]`;
-          }}
-
-          window.Kakao.Share.sendDefault({{
-            objectType: 'feed',
-            content: {{
-              title: mainTitle,
-              description: `부칭호: ${{resultData.subTitle}} (${{resultData.topPercent}})\\n"${{resultData.quote}}"\\n\\n🔥 당신의 진짜 태권도 레벨과 칭호도 지금 테스트해보세요!`,
-              imageUrl: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&auto=format&fit=crop&q=80',
-              link: {{
-                mobileWebUrl: window.location.href,
-                webUrl: window.location.href,
-              }},
-            }},
-            itemContent: {{
-              profileText: '🥋 태권도 레벨 테스트 공식 인증',
-              items: [
-                {{ item: '내공 레벨', itemOp: resultData.type }},
-                {{ item: '국기원 비율', itemOp: resultData.topPercent }},
-                {{ item: '환상의 짝꿍', itemOp: resultData.bestMatch }}
-              ]
-            }},
-            buttons: [
-              {{
-                title: '⚡ 나도 레벨 테스트 하기',
-                link: {{
-                  mobileWebUrl: window.location.href,
-                  webUrl: window.location.href,
-                }},
-              }},
-              {{
-                title: '🥋 결과 확인 및 도전',
-                link: {{
-                  mobileWebUrl: window.location.href,
-                  webUrl: window.location.href,
-                }},
-              }}
-            ],
-          }});
-        }} catch (e) {{
-          console.warn('Kakao share error:', e);
-          navigator.clipboard.writeText(window.location.href);
-          alert('카카오톡 공유 도메인이 등록되지 않았거나 카카오 SDK 오류가 발생했습니다.\\n(카카오 디벨로퍼스 내 플랫폼 도메인 등록 필요)\\n테스트 링크가 클립보드에 복사되었습니다!');
-        }}
-      }} else {{
+      if (!window.Kakao) {{
         navigator.clipboard.writeText(window.location.href);
         alert('카카오 SDK를 로드할 수 없습니다. 테스트 링크가 복사되었습니다!');
+        return;
+      }}
+
+      try {{
+        if (!window.Kakao.isInitialized()) {{
+          window.Kakao.init(kakaoKey);
+        }}
+
+        // 1. Render actual Canvas certificate image blob
+        const imageBlob = await CardExporter.getCanvasBlob(resultData);
+        const file = new File([imageBlob], 'certificate.png', {{ type: 'image/png' }});
+
+        // 2. Upload image dynamically to Kakao CDN server
+        let uploadedImageUrl = null;
+        try {{
+          const uploadRes = await window.Kakao.Share.uploadImage({{ file: [file] }});
+          if (uploadRes && uploadRes.infos && uploadRes.infos.original) {{
+            uploadedImageUrl = uploadRes.infos.original.url;
+          }}
+        }} catch (e) {{
+          console.warn('Kakao image upload fallback:', e);
+        }}
+
+        const finalImageUrl = uploadedImageUrl || 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&auto=format&fit=crop&q=80';
+
+        let mainTitle = `🥋 나의 태권도 내공 레벨: [ ${{resultData.type}} ]`;
+        if (resultData.userName && resultData.userDojang) {{
+          mainTitle = `🥋 [${{resultData.userDojang}}] ${{resultData.userName}} 님의 인증서`;
+        }} else if (resultData.userName) {{
+          mainTitle = `🥋 ${{resultData.userName}} 님의 태권도 인증서`;
+        }} else if (resultData.userDojang) {{
+          mainTitle = `🥋 [${{resultData.userDojang}}] 수련생의 인증서`;
+        }}
+
+        const testUrl = window.location.origin + window.location.pathname;
+
+        window.Kakao.Share.sendDefault({{
+          objectType: 'feed',
+          content: {{
+            title: mainTitle,
+            description: `부칭호: ${{resultData.subTitle}} (${{resultData.topPercent}})\\n"${{resultData.quote}}"\\n\\n👇 아래 링크를 눌러 당신의 레벨도 측정해보세요!`,
+            imageUrl: finalImageUrl,
+            imageWidth: 600,
+            imageHeight: 800,
+            link: {{
+              mobileWebUrl: testUrl,
+              webUrl: testUrl,
+            }},
+          }},
+          itemContent: {{
+            profileText: '🥋 태권도 레벨 테스트 공식 인증서',
+            items: [
+              {{ item: '내공 레벨', itemOp: resultData.type }},
+              {{ item: '상위 비율', itemOp: resultData.topPercent }},
+              {{ item: '환상의 짝꿍', itemOp: resultData.bestMatch }}
+            ]
+          }},
+          buttons: [
+            {{
+              title: '⚡ 나도 레벨 테스트 하기',
+              link: {{
+                mobileWebUrl: testUrl,
+                webUrl: testUrl,
+              }},
+            }},
+            {{
+              title: '🥋 레벨 결과 바로가기',
+              link: {{
+                mobileWebUrl: testUrl,
+                webUrl: testUrl,
+              }},
+            }}
+          ],
+        }});
+      }} catch (e) {{
+        console.warn('Kakao share error:', e);
+        navigator.clipboard.writeText(window.location.href);
+        alert('카카오톡 공유 처리 중 오류가 발생했습니다. 테스트 링크가 클립보드에 복사되었습니다!');
       }}
     }}
 
