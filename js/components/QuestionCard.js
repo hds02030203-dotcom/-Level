@@ -1,16 +1,28 @@
 /**
  * QuestionCard Component
- * Renders the quiz question text, options group, and navigation buttons.
+ * Renders the quiz question text, options group with press effect, and fluid question transitions.
  */
 export class QuestionCardComponent {
   constructor(containerId, options = {}) {
-    this.container = document.getElementById(containerId);
+    this.containerId = containerId;
+    this._container = null;
     this.onSelectOption = options.onSelectOption || (() => {});
     this.onPrevStep = options.onPrevStep || (() => {});
+    this.lastDirection = 'next';
+  }
+
+  get container() {
+    if (this._container) return this._container;
+    return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+  }
+
+  set container(val) {
+    this._container = val;
   }
 
   render(questionData, currentStep, selectedOptionIndex = null) {
-    if (!this.container || !questionData) return;
+    const targetNode = this.container;
+    if (!targetNode || !questionData) return;
 
     const optionsHtml = questionData.options.map((opt, idx) => `
       <button class="option-card ${selectedOptionIndex === idx ? 'selected' : ''}" data-index="${idx}">
@@ -23,8 +35,10 @@ export class QuestionCardComponent {
       ? `<button class="btn-back" id="prevQuestionBtn">← 이전 질문으로</button>` 
       : `<span></span>`;
 
-    this.container.innerHTML = `
-      <div class="glass-card quiz-view">
+    const animClass = this.lastDirection === 'prev' ? 'slide-in-left' : 'slide-in-right';
+
+    targetNode.innerHTML = `
+      <div class="glass-card quiz-view ${animClass}">
         <h2 class="question-text">${questionData.question}</h2>
         <div class="options-group">
           ${optionsHtml}
@@ -39,18 +53,45 @@ export class QuestionCardComponent {
   }
 
   bindEvents(questionData) {
-    const optionBtns = this.container.querySelectorAll('.option-card');
+    const targetNode = this.container;
+    if (!targetNode) return;
+
+    const quizView = targetNode.querySelector('.quiz-view');
+    const optionBtns = targetNode.querySelectorAll('.option-card');
+
     optionBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
+        // Immediate press feedback
+        btn.classList.add('clicking');
+        btn.classList.add('selected');
+
         const index = parseInt(btn.getAttribute('data-index'), 10);
-        this.onSelectOption(questionData, index);
+        this.lastDirection = 'next';
+
+        if (quizView) {
+          quizView.classList.remove('slide-in-right', 'slide-in-left');
+          quizView.classList.add('slide-out-left');
+        }
+
+        setTimeout(() => {
+          this.onSelectOption(questionData, index);
+        }, 180);
       });
     });
 
-    const prevBtn = this.container.querySelector('#prevQuestionBtn');
+    const prevBtn = targetNode.querySelector('#prevQuestionBtn');
     if (prevBtn) {
       prevBtn.addEventListener('click', () => {
-        this.onPrevStep();
+        this.lastDirection = 'prev';
+
+        if (quizView) {
+          quizView.classList.remove('slide-in-right', 'slide-in-left');
+          quizView.classList.add('slide-out-right');
+        }
+
+        setTimeout(() => {
+          this.onPrevStep();
+        }, 180);
       });
     }
   }

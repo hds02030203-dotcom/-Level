@@ -712,6 +712,7 @@
       this._container = null;
       this.onSelectOption = options.onSelectOption || (() => {});
       this.onPrevStep = options.onPrevStep || (() => {});
+      this.lastDirection = 'next';
     }
 
     get container() {
@@ -755,8 +756,10 @@
         ? `<button class="btn-back" id="prevBtn">← 이전 질문으로</button>`
         : `<span></span>`;
 
+      const animClass = this.lastDirection === 'prev' ? 'slide-in-left' : 'slide-in-right';
+
       targetNode.innerHTML = `
-        <div class="glass-card quiz-view">
+        <div class="glass-card quiz-view ${animClass}">
           <h2 class="question-text">${questionData.question}</h2>
           <div class="options-group">
             ${optionsHtml}
@@ -767,18 +770,41 @@
         </div>
       `;
 
+      const quizView = targetNode.querySelector('.quiz-view');
       const optionBtns = targetNode.querySelectorAll('.option-card');
+
       optionBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+          btn.classList.add('clicking');
+          btn.classList.add('selected');
+
           const idx = parseInt(btn.getAttribute('data-index'), 10);
-          this.onSelectOption(questionData, idx);
+          this.lastDirection = 'next';
+
+          if (quizView) {
+            quizView.classList.remove('slide-in-right', 'slide-in-left');
+            quizView.classList.add('slide-out-left');
+          }
+
+          setTimeout(() => {
+            this.onSelectOption(questionData, idx);
+          }, 180);
         });
       });
 
       const prevBtn = targetNode.querySelector('#prevBtn');
       if (prevBtn) {
         prevBtn.addEventListener('click', () => {
-          this.onPrevStep();
+          this.lastDirection = 'prev';
+
+          if (quizView) {
+            quizView.classList.remove('slide-in-right', 'slide-in-left');
+            quizView.classList.add('slide-out-right');
+          }
+
+          setTimeout(() => {
+            this.onPrevStep();
+          }, 180);
         });
       }
     }

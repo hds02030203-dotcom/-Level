@@ -478,16 +478,27 @@ body {
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s var(--ease-smooth);
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   align-items: center;
   gap: 12px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .option-card:hover {
   background: rgba(230, 57, 70, 0.15);
   border-color: var(--red-primary);
-  transform: translateX(4px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.15);
+}
+
+.option-card:active,
+.option-card.clicking {
+  transform: scale(0.96) !important;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(230, 57, 70, 0.4)) !important;
+  border-color: var(--gold-accent) !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
 }
 
 .option-card.selected {
@@ -495,6 +506,67 @@ body {
   border-color: var(--red-primary);
   box-shadow: 0 0 16px rgba(230, 57, 70, 0.3);
   font-weight: 700;
+}
+
+/* Question Slide Animations */
+@keyframes slideOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-35px) scale(0.96);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(35px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(35px) scale(0.96);
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-35px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.slide-out-left {
+  animation: slideOutLeft 0.18s ease-in forwards !important;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.22s ease-out forwards !important;
+}
+
+.slide-out-right {
+  animation: slideOutRight 0.18s ease-in forwards !important;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.22s ease-out forwards !important;
 }
 
 .option-index {
