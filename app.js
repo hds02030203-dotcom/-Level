@@ -202,11 +202,11 @@ class App {
     else if (q9Ans === 2 || (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1))) {
       if (q17Ans === 0 && q18Ans === 0) {
         topCategory = 'DAN_5';
-      } else if (q17Ans === 0 || q18Ans === 0 || (categoryScores['DAN_4'] || 0) >= 2) {
+      } else if (q13Ans === 3 || q17Ans === 0) {
         topCategory = 'DAN_4';
-      } else if (q17Ans === 1 || q18Ans === 1 || (categoryScores['DAN_3'] || 0) >= 2) {
+      } else if (q13Ans === 2) {
         topCategory = 'DAN_3';
-      } else if ((categoryScores['DAN_2'] || 0) >= 2) {
+      } else if (q13Ans === 1) {
         topCategory = 'DAN_2';
       } else {
         topCategory = 'DAN_1';
@@ -214,28 +214,30 @@ class App {
     }
     // RULE 4: POOM TIER (1품 ~ 4품)
     else if (q9Ans === 1 || (poomScore > danScore && (poomScore >= colorBeltScore || q9Ans === 1))) {
-      if ((categoryScores['POOM_4'] || 0) >= 2 || (q17Ans === 1 && q19Ans === 2)) {
+      if (q13Ans === 3 || q17Ans === 0) {
         topCategory = 'POOM_4';
-      } else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1 || q19Ans === 2) {
+      } else if (q13Ans === 2) {
         topCategory = 'POOM_3';
-      } else if ((categoryScores['POOM_2'] || 0) >= 2) {
+      } else if (q13Ans === 1) {
         topCategory = 'POOM_2';
       } else {
         topCategory = 'POOM_1';
       }
     }
-    // RULE 5: COLOR BELT TIER (빨간 띠, 파란 띠, 노란 띠, 흰 띠)
+    // RULE 5: COLOR BELT TIER (흰 띠, 노란 띠, 파란 띠, 빨간 띠)
     else {
       const red = categoryScores['RED_BELT'] || 0;
       const blue = categoryScores['BLUE_BELT'] || 0;
       const yellow = categoryScores['YELLOW_BELT'] || 0;
       const white = categoryScores['WHITE_BELT'] || 0;
 
-      if (q18Ans === 2 || (red >= blue && red >= yellow && red >= white && red > 0)) {
+      const q8Ans = q8Idx !== -1 ? this.answers[q8Idx] : undefined;
+
+      if (q8Ans === 3 || (red > blue && red > yellow && red > white)) {
         topCategory = 'RED_BELT';
-      } else if (q17Ans === 2 || (blue >= yellow && blue >= white && blue > 0)) {
+      } else if (q8Ans === 2 || (blue > yellow && blue > white)) {
         topCategory = 'BLUE_BELT';
-      } else if (yellow >= white && yellow > 0) {
+      } else if (q8Ans === 1 || (yellow > white)) {
         topCategory = 'YELLOW_BELT';
       } else {
         topCategory = 'WHITE_BELT';

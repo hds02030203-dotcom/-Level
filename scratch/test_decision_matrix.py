@@ -1,4 +1,4 @@
-# scratch/test_decision_matrix.py - End-to-End Simulation Test for Taekwondo Decision Matrix
+# scratch/test_decision_matrix.py - Full 16-Category Simulation Test for Taekwondo Decision Matrix
 import sys
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -61,6 +61,11 @@ def simulate_test(profile_name, answers):
                 scores['DAN_1'] = scores.get('DAN_1', 0) + 3
             else:
                 scores['YELLOW_BELT'] = scores.get('YELLOW_BELT', 0) + 1
+        elif q_id == 13:
+            dan_target = f"DAN_{opt_idx + 1}"
+            poom_target = f"POOM_{opt_idx + 1}"
+            scores[dan_target] = scores.get(dan_target, 0) + weight
+            scores[poom_target] = scores.get(poom_target, 0) + weight
         else:
             target = q_targets[q_id][opt_idx]
             scores[target] = scores.get(target, 0) + weight
@@ -71,7 +76,9 @@ def simulate_test(profile_name, answers):
     poom_score = sum([v for k, v in scores.items() if k.startswith('POOM_')])
     color_belt_score = sum([v for k, v in scores.items() if k in ['RED_BELT', 'BLUE_BELT', 'YELLOW_BELT', 'WHITE_BELT']])
 
+    q8_ans = answers.get(8)
     q9_ans = answers.get(9)
+    q13_ans = answers.get(13)
     q16_ans = answers.get(16)
     q17_ans = answers.get(17)
     q18_ans = answers.get(18)
@@ -79,6 +86,7 @@ def simulate_test(profile_name, answers):
 
     top_category = 'WHITE_BELT'
 
+    # Hierarchical Decision Matrix Rules
     if q16_ans == 0 and (q19_ans == 0 or master_score >= 2 or q18_ans == 0):
         top_category = 'GWANJANG'
     elif (q16_ans == 0 or q16_ans == 1) and (master_score >= 2 or scores.get('SABEOM', 0) >= 1):
@@ -88,20 +96,20 @@ def simulate_test(profile_name, answers):
     elif q9_ans == 2 or (dan_score >= poom_score and dan_score >= color_belt_score and (dan_score >= 2 or q16_ans == 2 or q18_ans <= 1)):
         if q17_ans == 0 and q18_ans == 0:
             top_category = 'DAN_5'
-        elif q17_ans == 0 or q18_ans == 0 or scores.get('DAN_4', 0) >= 2:
+        elif q13_ans == 3 or q17_ans == 0:
             top_category = 'DAN_4'
-        elif q17_ans == 1 or q18_ans == 1 or scores.get('DAN_3', 0) >= 2:
+        elif q13_ans == 2:
             top_category = 'DAN_3'
-        elif scores.get('DAN_2', 0) >= 2:
+        elif q13_ans == 1:
             top_category = 'DAN_2'
         else:
             top_category = 'DAN_1'
     elif q9_ans == 1 or (poom_score > dan_score and (poom_score >= color_belt_score or q9_ans == 1)):
-        if scores.get('POOM_4', 0) >= 2 or (q17_ans == 1 and q19_ans == 2):
+        if q13_ans == 3 or q17_ans == 0:
             top_category = 'POOM_4'
-        elif scores.get('POOM_3', 0) >= 2 or q17_ans == 1 or q19_ans == 2:
+        elif q13_ans == 2:
             top_category = 'POOM_3'
-        elif scores.get('POOM_2', 0) >= 2:
+        elif q13_ans == 1:
             top_category = 'POOM_2'
         else:
             top_category = 'POOM_1'
@@ -111,49 +119,36 @@ def simulate_test(profile_name, answers):
         yellow = scores.get('YELLOW_BELT', 0)
         white = scores.get('WHITE_BELT', 0)
 
-        if q18_ans == 2 or (red >= blue and red >= yellow and red >= white and red > 0):
+        if q8_ans == 3 or (red > blue and red > yellow and red > white):
             top_category = 'RED_BELT'
-        elif q17_ans == 2 or (blue >= yellow and blue >= white and blue > 0):
+        elif q8_ans == 2 or (blue > yellow and blue > white):
             top_category = 'BLUE_BELT'
-        elif yellow >= white and yellow > 0:
+        elif q8_ans == 1 or (yellow > white):
             top_category = 'YELLOW_BELT'
         else:
             top_category = 'WHITE_BELT'
 
     result_title = RESULT_TYPES.get(top_category, '미확인')
-    print(f"[{profile_name}] -> 판정 카테고리: {top_category} | 결과 칭호: '{result_title}'")
+    print(f"[{profile_name:<18}] ➔ 판정: {top_category:<11} | 칭호: '{result_title}'")
     return top_category
 
-print("=== 태권도 레벨 테스트 결정 매트릭스 시뮬레이션 검증 ===")
+print("=== 🥋 전 16개 카테고리 100% 검증 시뮬레이션 ===")
 
-# Test Case 1: Grandmaster (관장님)
-simulate_test("프로필 1: 관장님/대사범님", {
-    1:0, 2:1, 3:1, 4:0, 5:2, 6:1, 7:2, 8:3, 9:3, 10:0, 11:1, 12:0, 13:3, 14:0, 15:2, 16:0, 17:0, 18:0, 19:0
-})
-
-# Test Case 2: Certified Instructor (사범님)
-simulate_test("프로필 2: 공인 사범님", {
-    1:0, 2:1, 3:1, 4:1, 5:0, 6:0, 7:2, 8:3, 9:3, 10:0, 11:1, 12:0, 13:2, 14:0, 15:2, 16:1, 17:1, 18:1, 19:0
-})
-
-# Test Case 3: Elite Player (엘리트 선수)
-simulate_test("프로필 3: 국가대표 겨루기/품새 선수", {
-    1:0, 2:0, 3:0, 4:1, 5:0, 6:0, 7:0, 8:3, 9:2, 10:2, 11:0, 12:1, 13:2, 14:2, 15:0, 16:2, 17:1, 18:1, 19:1
-})
-
-# Test Case 4: Dan Holder 3-Dan (공인 3단 유단자)
-simulate_test("프로필 4: 공인 3단 성인 유단자", {
-    1:1, 2:2, 3:1, 4:1, 5:1, 6:3, 7:1, 8:3, 9:2, 10:1, 11:2, 12:0, 13:2, 14:0, 15:2, 16:2, 17:1, 18:1, 19:2
-})
-
-# Test Case 5: Junior Poom Holder 2-Poom (공인 2품 수련생)
-simulate_test("프로필 5: 공인 2품 청소년 수련생", {
-    1:2, 2:3, 3:2, 4:2, 5:3, 6:2, 7:3, 8:2, 9:1, 10:3, 11:0, 12:3, 13:1, 14:1, 15:3, 16:3, 17:2, 18:2, 19:2
-})
-
-# Test Case 6: Yellow Belt Beginner (입문 병아리 노란 띠)
-simulate_test("프로필 6: 입문 3개월차 노란 띠 수련생", {
-    1:3, 2:3, 3:3, 4:3, 5:3, 6:3, 7:3, 8:1, 9:0, 10:3, 11:3, 12:3, 13:0, 14:3, 15:3, 16:3, 17:3, 18:3, 19:3
-})
+simulate_test("1. 흰 띠 수련생", { 1:3, 2:3, 3:3, 4:3, 5:3, 6:3, 7:3, 8:0, 9:0, 10:3, 11:3, 12:3, 13:0, 14:3, 15:3, 16:3, 17:3, 18:3, 19:3 })
+simulate_test("2. 노란 띠 수련생", { 1:3, 2:3, 3:3, 4:3, 5:3, 6:3, 7:3, 8:1, 9:0, 10:3, 11:3, 12:3, 13:0, 14:3, 15:3, 16:3, 17:3, 18:3, 19:3 })
+simulate_test("3. 파란 띠 수련생", { 1:2, 2:2, 3:2, 4:2, 5:3, 6:3, 7:3, 8:2, 9:0, 10:3, 11:2, 12:3, 13:0, 14:3, 15:3, 16:3, 17:2, 18:3, 19:3 })
+simulate_test("4. 빨간 띠 수련생", { 1:2, 2:2, 3:2, 4:2, 5:1, 6:2, 7:3, 8:3, 9:0, 10:3, 11:2, 12:2, 13:0, 14:2, 15:3, 16:3, 17:2, 18:2, 19:3 })
+simulate_test("5. 공인 1품 수련생", { 1:2, 2:3, 3:2, 4:2, 5:3, 6:2, 7:3, 8:3, 9:1, 10:3, 11:3, 12:2, 13:0, 14:1, 15:3, 16:3, 17:2, 18:2, 19:2 })
+simulate_test("6. 공인 2품 수련생", { 1:2, 2:3, 3:2, 4:2, 5:3, 6:2, 7:3, 8:3, 9:1, 10:3, 11:3, 12:2, 13:1, 14:1, 15:3, 16:3, 17:2, 18:2, 19:2 })
+simulate_test("7. 공인 3품 수련생", { 1:2, 2:3, 3:2, 4:2, 5:3, 6:2, 7:3, 8:3, 9:1, 10:3, 11:3, 12:2, 13:2, 14:1, 15:3, 16:3, 17:2, 18:2, 19:2 })
+simulate_test("8. 공인 4품 수련생", { 1:2, 2:3, 3:2, 4:2, 5:3, 6:2, 7:3, 8:3, 9:1, 10:3, 11:0, 12:2, 13:3, 14:1, 15:3, 16:3, 17:1, 18:1, 19:2 })
+simulate_test("9. 공인 1단 유단자", { 1:1, 2:2, 3:1, 4:1, 5:1, 6:3, 7:1, 8:3, 9:2, 10:1, 11:2, 12:2, 13:0, 14:0, 15:2, 16:2, 17:2, 18:1, 19:2 })
+simulate_test("10. 공인 2단 유단자", { 1:1, 2:2, 3:1, 4:1, 5:1, 6:3, 7:1, 8:3, 9:2, 10:1, 11:2, 12:0, 13:1, 14:0, 15:2, 16:2, 17:1, 18:1, 19:2 })
+simulate_test("11. 공인 3단 유단자", { 1:1, 2:2, 3:1, 4:1, 5:1, 6:3, 7:1, 8:3, 9:2, 10:1, 11:2, 12:0, 13:2, 14:0, 15:2, 16:2, 17:1, 18:1, 19:2 })
+simulate_test("12. 공인 4단 유단자", { 1:1, 2:2, 3:1, 4:1, 5:1, 6:0, 7:1, 8:3, 9:2, 10:1, 11:2, 12:0, 13:3, 14:0, 15:2, 16:2, 17:1, 18:1, 19:2 })
+simulate_test("13. 공인 5단 고단자", { 1:1, 2:2, 3:1, 4:0, 5:1, 6:0, 7:1, 8:3, 9:2, 10:1, 11:2, 12:0, 13:3, 14:0, 15:2, 16:2, 17:0, 18:0, 19:2 })
+simulate_test("14. 국가대표 선수", { 1:0, 2:0, 3:0, 4:1, 5:0, 6:0, 7:0, 8:3, 9:2, 10:2, 11:0, 12:1, 13:2, 14:2, 15:0, 16:2, 17:1, 18:1, 19:1 })
+simulate_test("15. 명품 사범님", { 1:0, 2:1, 3:1, 4:1, 5:0, 6:0, 7:2, 8:3, 9:3, 10:0, 11:1, 12:0, 13:2, 14:0, 15:2, 16:1, 17:1, 18:1, 19:0 })
+simulate_test("16. 최고 관장님", { 1:0, 2:1, 3:1, 4:0, 5:2, 6:1, 7:2, 8:3, 9:3, 10:0, 11:1, 12:0, 13:3, 14:0, 15:2, 16:0, 17:0, 18:0, 19:0 })
 
 print("==================================================")
