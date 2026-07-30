@@ -27,7 +27,7 @@ export const QUESTIONS = [
     id: 3,
     question: "겨루기 경기 중 상대방이 강한 미트 발차기 공격을 해올 때 순간적인 선택은?",
     options: [
-      { text: '찰나의 스텝 컷트 후 번개 같은 540도 뒤후려차기 카운터를 시도한다.', target: 'PLAYER' },
+      { text: '뒤로 스텝을 밟은 후 뒤후려차기로 카운터를 날린다.', target: 'PLAYER' },
       { text: '상대의 시선과 스텝을 읽고, 거리 조절과 가드로 상대 공격을 무력화한다.', target: 'DAN_5' },
       { text: '순간적으로 뒤로 스텝을 밟았지만 당차게 기합을 넣고 정면으로 나아간다.', target: 'RED_BELT' },
       { text: '상대의 빠르고 멋진 발차기 기술을 유심히 관찰하고 감탄한다.', target: 'WHITE_BELT' }
