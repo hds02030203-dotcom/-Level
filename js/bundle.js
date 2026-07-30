@@ -526,8 +526,12 @@
   // --------------------------------------------------------------------------
   class StartScreenComponent {
     constructor(containerId, options = {}) {
-      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.containerId = containerId;
       this.onStart = options.onStart || (() => {});
+    }
+
+    get container() {
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }
 
     render() {
@@ -564,9 +568,13 @@
   // --------------------------------------------------------------------------
   class QuizScreenComponent {
     constructor(containerId, options = {}) {
-      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.containerId = containerId;
       this.onSelectOption = options.onSelectOption || (() => {});
       this.onPrevStep = options.onPrevStep || (() => {});
+    }
+
+    get container() {
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }
 
     render(questionData, currentStep, totalSteps, selectedOptionIndex = null) {
@@ -634,7 +642,11 @@
   // --------------------------------------------------------------------------
   class LoadingScreenComponent {
     constructor(containerId) {
-      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.containerId = containerId;
+    }
+
+    get container() {
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }
 
     render() {
@@ -660,8 +672,12 @@
   // --------------------------------------------------------------------------
   class ResultScreenComponent {
     constructor(containerId, options = {}) {
-      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.containerId = containerId;
       this.onRestart = options.onRestart || (() => {});
+    }
+
+    get container() {
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }
 
     render(resultData) {
