@@ -416,6 +416,44 @@
   }
 
   // --------------------------------------------------------------------------
+  // 3.5 STARTSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class StartScreenComponent {
+    constructor(containerId, options = {}) {
+      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.onStart = options.onStart || (() => {});
+    }
+
+    render() {
+      if (!this.container) return;
+
+      this.container.innerHTML = `
+        <div class="glass-card landing-view">
+          <div class="hero-emblem" aria-label="Taekwondo Belt Emblem">🥋</div>
+          <h1 class="landing-title">내 태권도 내공은<br>몇 단일까?</h1>
+          <p class="landing-desc">
+            도장 수련 지식부터 실전 위기 상황 태도까지!<br>
+            직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
+          </p>
+          <div class="participant-badge">
+            🔥 현재까지 12,450명 참여 완료
+          </div>
+          <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
+            ⚡ 테스트 시작하기
+          </button>
+        </div>
+      `;
+
+      const startBtn = this.container.querySelector('#startTestBtn');
+      if (startBtn) {
+        startBtn.addEventListener('click', () => {
+          this.onStart();
+        });
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // 4. MAIN APP CONTROLLER
   // --------------------------------------------------------------------------
   class TaekwondoApp {
@@ -425,6 +463,16 @@
       this.answers = [];
       this.scores = {};
       this.finalResult = null;
+
+      this.startScreen = new StartScreenComponent('mainContainer', {
+        onStart: () => {
+          this.state = 'QUIZ';
+          this.currentStep = 0;
+          this.answers = [];
+          this.scores = {};
+          this.render();
+        }
+      });
 
       this.init();
     }
@@ -464,30 +512,8 @@
 
       if (this.state === 'START') {
         if (progressContainer) progressContainer.innerHTML = '';
-        mainContainer.innerHTML = `
-          <div class="glass-card landing-view">
-            <div class="hero-emblem">🥋</div>
-            <h1 class="landing-title">내 태권도 내공은<br>몇 단일까?</h1>
-            <p class="landing-desc">
-              도장 수련 지식부터 실전 위기 상황 태도까지!<br>
-              직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
-            </p>
-            <div class="participant-badge">
-              🔥 현재까지 12,450명 참여 완료
-            </div>
-            <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
-              ⚡ 테스트 시작하기
-            </button>
-          </div>
-        `;
-
-        document.getElementById('startTestBtn').addEventListener('click', () => {
-          this.state = 'QUIZ';
-          this.currentStep = 0;
-          this.answers = [];
-          this.scores = {};
-          this.render();
-        });
+        this.startScreen.container = mainContainer;
+        this.startScreen.render();
 
       } else if (this.state === 'QUIZ') {
         const question = QUESTIONS[this.currentStep];

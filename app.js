@@ -6,6 +6,7 @@ import { QUESTIONS } from './js/data/questions.js';
 import { RESULT_TYPES } from './js/data/results.js';
 
 import { HeaderComponent } from './js/components/Header.js';
+import { StartScreenComponent } from './js/components/StartScreen.js';
 import { ProgressBarComponent } from './js/components/ProgressBar.js';
 import { QuestionCardComponent } from './js/components/QuestionCard.js';
 import { ResultCardComponent } from './js/components/ResultCard.js';
@@ -30,6 +31,16 @@ class App {
       }
     });
 
+    this.startScreen = new StartScreenComponent('mainContainer', {
+      onStart: () => {
+        this.state = 'QUIZ';
+        this.currentStep = 0;
+        this.answers = [];
+        this.scores = {};
+        this.render();
+      }
+    });
+
     this.progressBar = new ProgressBarComponent('progressContainer');
 
     this.questionCard = new QuestionCardComponent('quizContainer', {
@@ -51,30 +62,8 @@ class App {
 
     if (this.state === 'START') {
       document.getElementById('progressContainer').innerHTML = '';
-      mainContainer.innerHTML = `
-        <div class="glass-card landing-view">
-          <div class="hero-emblem">🥋</div>
-          <h1 class="landing-title">내 태권도 내공은<br>몇 단일까?</h1>
-          <p class="landing-desc">
-            도장 수련 지식부터 실전 위기 상황 태도까지!<br>
-            직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
-          </p>
-          <div class="participant-badge">
-            🔥 현재까지 12,450명 참여 완료
-          </div>
-          <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
-            ⚡ 테스트 시작하기
-          </button>
-        </div>
-      `;
-
-      document.getElementById('startTestBtn').addEventListener('click', () => {
-        this.state = 'QUIZ';
-        this.currentStep = 0;
-        this.answers = [];
-        this.scores = {};
-        this.render();
-      });
+      this.startScreen.container = mainContainer;
+      this.startScreen.render();
 
     } else if (this.state === 'QUIZ') {
       const question = QUESTIONS[this.currentStep];
