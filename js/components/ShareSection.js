@@ -127,27 +127,49 @@ export class ShareSectionComponent {
           window.Kakao.init(kakaoKey);
         }
 
-        const titleText = resultData.userName ? `🥋 [${resultData.userName}] 님의 태권도 레벨: ${resultData.type}` : `🥋 나의 태권도 레벨: [${resultData.type}]`;
+        let mainTitle = `🥋 나의 태권도 내공 레벨: [ ${resultData.type} ]`;
+        if (resultData.userName && resultData.userDojang) {
+          mainTitle = `🥋 [${resultData.userDojang}] ${resultData.userName} 님의 내공 레벨: [ ${resultData.type} ]`;
+        } else if (resultData.userName) {
+          mainTitle = `🥋 ${resultData.userName} 님의 내공 레벨: [ ${resultData.type} ]`;
+        } else if (resultData.userDojang) {
+          mainTitle = `🥋 [${resultData.userDojang}] 수련생의 내공 레벨: [ ${resultData.type} ]`;
+        }
 
         window.Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
-            title: titleText,
-            description: `${resultData.subTitle} | ${resultData.topPercent}\n${resultData.description}`,
-            imageUrl: 'https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_sharing_btn_medium.png',
+            title: mainTitle,
+            description: `부칭호: ${resultData.subTitle} (${resultData.topPercent})\n"${resultData.quote}"\n\n🔥 당신의 진짜 태권도 레벨과 칭호도 지금 테스트해보세요!`,
+            imageUrl: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&auto=format&fit=crop&q=80',
             link: {
               mobileWebUrl: window.location.href,
               webUrl: window.location.href,
             },
           },
+          itemContent: {
+            profileText: '🥋 태권도 레벨 테스트 공식 인증',
+            items: [
+              { item: '내공 레벨', itemOp: resultData.type },
+              { item: '국기원 비율', itemOp: resultData.topPercent },
+              { item: '환상의 짝꿍', itemOp: resultData.bestMatch }
+            ]
+          },
           buttons: [
             {
-              title: '내 레벨 테스트하기',
+              title: '⚡ 나도 레벨 테스트 하기',
               link: {
                 mobileWebUrl: window.location.href,
                 webUrl: window.location.href,
               },
             },
+            {
+              title: '🥋 결과 확인 및 도전',
+              link: {
+                mobileWebUrl: window.location.href,
+                webUrl: window.location.href,
+              },
+            }
           ],
         });
       } catch (err) {
