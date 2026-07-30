@@ -402,7 +402,7 @@
       ctx.fillStyle = '#94A3B8';
       ctx.font = 'bold 20px Pretendard, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
+      ctx.fillText('🥋 태권도 Level-test 공식 인증서', 300, 80);
 
       // Top % Tag Pill
       ctx.fillStyle = '#F59E0B';
@@ -736,8 +736,7 @@
       headerContainer.innerHTML = `
         <header class="site-header">
           <a href="#" class="brand-logo" id="headerLogoBtn">
-            <span>🥋 태권도 LEVEL</span>
-            <span class="brand-badge">TEST</span>
+            <span>🥋 태권도 Level-test</span>
           </a>
           <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드">🔇</button>
         </header>
