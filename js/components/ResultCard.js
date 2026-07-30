@@ -22,14 +22,10 @@ export class ResultCardComponent {
           ${resultData.quote}
         </p>
 
-        <div class="chemistry-box">
+        <div class="chemistry-box" style="grid-template-columns: 1fr;">
           <div class="chem-card chem-best">
             <div class="chem-title">💖 환상의 짝꿍</div>
             <div class="chem-value">${resultData.bestMatch}</div>
-          </div>
-          <div class="chem-card chem-worst">
-            <div class="chem-title">💔 환장의 짝꿍</div>
-            <div class="chem-value">${resultData.worstMatch}</div>
           </div>
         </div>
       </div>

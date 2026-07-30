@@ -374,15 +374,9 @@
       ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.fillRect(60, 620, 480, 90);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.strokeRect(60, 620, 480, 90);
-
       ctx.fillStyle = '#34D399';
-      ctx.font = 'bold 16px Pretendard, sans-serif';
-      ctx.fillText(`💖 최고의 궁합: ${resultData.bestMatch}`, 180, 670);
-
-      ctx.fillStyle = '#F87171';
-      ctx.font = 'bold 16px Pretendard, sans-serif';
-      ctx.fillText(`💔 최악의 궁합: ${resultData.worstMatch}`, 420, 670);
+      ctx.font = 'bold 18px Pretendard, sans-serif';
+      ctx.fillText(`💖 환상의 짝꿍: ${resultData.bestMatch}`, 300, 672);
 
       // Download trigger
       const dataUrl = canvas.toDataURL('image/png');
@@ -574,14 +568,10 @@
               ${resultData.quote}
             </p>
 
-            <div class="chemistry-box">
+            <div class="chemistry-box" style="grid-template-columns: 1fr;">
               <div class="chem-card chem-best">
                 <div class="chem-title">💖 환상의 짝꿍</div>
                 <div class="chem-value">${resultData.bestMatch}</div>
-              </div>
-              <div class="chem-card chem-worst">
-                <div class="chem-title">💔 환장의 짝꿍</div>
-                <div class="chem-value">${resultData.worstMatch}</div>
               </div>
             </div>
           </div>

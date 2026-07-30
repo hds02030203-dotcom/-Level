@@ -74,15 +74,10 @@ export class CardExporter {
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.strokeRect(60, 620, 480, 90);
 
-    // Best Match
+    // Best Match (Centered)
     ctx.fillStyle = '#34D399';
-    ctx.font = 'bold 16px Pretendard, sans-serif';
-    ctx.fillText(`💖 최고의 궁합: ${resultData.bestMatch}`, 180, 670);
-
-    // Worst Match
-    ctx.fillStyle = '#F87171';
-    ctx.font = 'bold 16px Pretendard, sans-serif';
-    ctx.fillText(`💔 최악의 궁합: ${resultData.worstMatch}`, 420, 670);
+    ctx.font = 'bold 18px Pretendard, sans-serif';
+    ctx.fillText(`💖 환상의 짝꿍: ${resultData.bestMatch}`, 300, 672);
 
     // Footer Watermark
     ctx.fillStyle = '#64748B';
