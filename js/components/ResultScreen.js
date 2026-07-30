@@ -1,45 +1,46 @@
 /**
  * ResultScreen Component (js/components/ResultScreen.js)
- * Encapsulates the entire result view with certificate card, share action buttons, and level distribution chart.
+ * Encapsulates the result view with certificate card and share action buttons.
  */
 import { ResultCardComponent } from './ResultCard.js';
 import { ShareSectionComponent } from './ShareSection.js';
-import { DistributionChartComponent } from './DistributionChart.js';
 
 export class ResultScreenComponent {
   constructor(containerId, options = {}) {
     this.containerId = containerId;
+    this._container = null;
     this.onRestart = options.onRestart || (() => {});
 
     this.resultCard = new ResultCardComponent('resultCardContainer');
     this.shareSection = new ShareSectionComponent('shareContainer', {
       onRestart: () => this.onRestart()
     });
-    this.distributionChart = new DistributionChartComponent('distributionChartContainer');
   }
 
   get container() {
+    if (this._container) return this._container;
     return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
   }
 
-  render(resultData) {
-    if (!this.container || !resultData) return;
+  set container(val) {
+    this._container = val;
+  }
 
-    this.container.innerHTML = `
+  render(resultData) {
+    const targetNode = this.container;
+    if (!targetNode || !resultData) return;
+
+    targetNode.innerHTML = `
       <div class="result-view">
         <div id="resultCardContainer"></div>
         <div id="shareContainer"></div>
-        <div id="distributionChartContainer"></div>
       </div>
     `;
 
-    this.resultCard.container = document.getElementById('resultCardContainer');
+    this.resultCard.container = targetNode.querySelector('#resultCardContainer');
     this.resultCard.render(resultData);
 
-    this.shareSection.container = document.getElementById('shareContainer');
+    this.shareSection.container = targetNode.querySelector('#shareContainer');
     this.shareSection.render(resultData);
-
-    this.distributionChart.container = document.getElementById('distributionChartContainer');
-    this.distributionChart.render(resultData);
   }
 }

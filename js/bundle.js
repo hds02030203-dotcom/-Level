@@ -910,7 +910,6 @@
       this.containerId = containerId;
       this._container = null;
       this.onRestart = options.onRestart || (() => {});
-      this.distributionChart = new DistributionChartComponent('distributionChartContainer');
     }
 
     get container() {
@@ -976,13 +975,8 @@
               🔄 테스트 다시 도전하기
             </button>
           </div>
-
-          <div id="distributionChartContainer"></div>
         </div>
       `;
-
-      this.distributionChart.container = targetNode.querySelector('#distributionChartContainer');
-      this.distributionChart.render(resultData);
 
       this.bindEvents(resultData);
     }
