@@ -68,6 +68,21 @@ export class StartScreenComponent {
     this.animateCounter(currentCount);
     this.startLiveTicker(currentCount);
     this.bindEvents();
+
+    // Fetch live Central Serverless DB Count from /api/count
+    try {
+      fetch('/api/count')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.totalCount && data.totalCount > currentCount) {
+            const countEl = this.container.querySelector('#participantCount');
+            if (countEl) {
+              countEl.textContent = data.totalCount.toLocaleString();
+            }
+          }
+        })
+        .catch(() => {});
+    } catch (e) {}
   }
 
   animateCounter(targetCount) {

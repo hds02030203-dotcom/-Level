@@ -746,6 +746,21 @@
       this.animateCounter(currentCount);
       this.startLiveTicker(currentCount);
       this.bindEvents();
+
+      // Fetch live Central Serverless DB Count from /api/count
+      try {
+        fetch('/api/count')
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.totalCount && data.totalCount > currentCount) {
+              const countEl = targetNode.querySelector('#participantCount');
+              if (countEl) {
+                countEl.textContent = data.totalCount.toLocaleString();
+              }
+            }
+          })
+          .catch(() => {});
+      } catch (e) {}
     }
 
     animateCounter(targetCount) {
@@ -1435,12 +1450,13 @@
     }
 
     calculateResult() {
-      // Increment local participation count upon test completion!
+      // Increment Central Serverless DB Count & Local Cache
       try {
         const currentExtra = parseInt(localStorage.getItem('tkd_extra_participants') || '0', 10);
         localStorage.setItem('tkd_extra_participants', (currentExtra + 1).toString());
+        fetch('/api/count', { method: 'POST' }).catch(() => {});
       } catch (e) {
-        console.warn('localStorage access warning:', e);
+        console.warn('Count increment warning:', e);
       }
 
       // 1. Group Score Aggregation

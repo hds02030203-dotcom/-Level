@@ -143,6 +143,13 @@ class App {
   }
 
   calculateResult() {
+    // 0. Increment Central Serverless DB Count & Local Cache
+    try {
+      const currentExtra = parseInt(localStorage.getItem('tkd_extra_participants') || '0', 10);
+      localStorage.setItem('tkd_extra_participants', (currentExtra + 1).toString());
+      fetch('/api/count', { method: 'POST' }).catch(() => {});
+    } catch (e) {}
+
     // 1. Group Score Aggregation
     let masterScore = 0;
     let playerScore = 0;
