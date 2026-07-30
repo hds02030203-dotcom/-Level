@@ -96,20 +96,19 @@ class App {
     // Special scoring for Q16 Certification Question
     if (question.id === 16) {
       if (optionIndex === 0) {
-        // 둘 다 소유: 관장님 +3, 사범님 +2.5
+        // 2개 다 소유: 최고 가점 (+3)
         this.scores['GWANJANG'] = (this.scores['GWANJANG'] || 0) + 3;
-        this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2.5;
+        this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 3;
       } else if (optionIndex === 1) {
-        // 생활스포츠지도사 (가점 높음 +2.5): 사범님 +2.5, 4단 +2
-        this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2.5;
+        // 둘 중 1개 소유: 높은 가점 (+2)
+        this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2;
         this.scores['DAN_4'] = (this.scores['DAN_4'] || 0) + 2;
       } else if (optionIndex === 2) {
-        // 국제태권도사범 자격증 (+1.5): 사범님 +1.5, 3단 +1
-        this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 1.5;
-        this.scores['DAN_3'] = (this.scores['DAN_3'] || 0) + 1;
-      } else {
-        // 자격증 없음: 1단 +1
+        // 품/단증 보유: 기본 점수 (+1)
         this.scores['DAN_1'] = (this.scores['DAN_1'] || 0) + 1;
+      } else {
+        // 자격증 없음: 노란 띠 (+1)
+        this.scores['YELLOW_BELT'] = (this.scores['YELLOW_BELT'] || 0) + 1;
       }
     } else {
       const targetType = selectedOption.target;
@@ -157,18 +156,17 @@ class App {
     const q16AnswerIndex = q16Index !== -1 ? this.answers[q16Index] : undefined;
 
     const hasBothCerts = (q16AnswerIndex === 0);
-    const hasSportsLeader = (q16AnswerIndex === 0 || q16AnswerIndex === 1);
-    const hasMasterCert = (q16AnswerIndex === 0 || q16AnswerIndex === 2);
+    const hasOneCert = (q16AnswerIndex === 0 || q16AnswerIndex === 1);
 
     // Business Rule Enforcement:
-    // 1. 관장님(GWANJANG): 반드시 국제태권도사범 자격증과 생활스포츠지도사 둘 다 소유해야 가능!
+    // 1. 관장님(GWANJANG): 반드시 2개 다 소유해야 가능! (미소유 시 사범님/5단으로 조정)
     if (topCategory === 'GWANJANG' && !hasBothCerts) {
-      topCategory = hasMasterCert ? 'SABEOM' : 'DAN_5';
+      topCategory = hasOneCert ? 'SABEOM' : 'DAN_5';
     }
 
-    // 2. 사범님(SABEOM): 국제태권도사범 자격증만 갖고 있거나 둘 다 소유해야 가능!
-    if (topCategory === 'SABEOM' && (!hasMasterCert && !hasBothCerts)) {
-      topCategory = hasSportsLeader ? 'DAN_5' : 'DAN_4';
+    // 2. 사범님(SABEOM): 자격증 1개 이상 소유 시 가능! (미소유 시 4단으로 조정)
+    if (topCategory === 'SABEOM' && !hasOneCert) {
+      topCategory = 'DAN_4';
     }
 
     this.finalResult = RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT;
