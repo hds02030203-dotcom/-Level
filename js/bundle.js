@@ -604,8 +604,9 @@
           <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
             ⚡ 테스트 시작하기
           </button>
-          <p style="font-size: 0.75rem; color: #64748B; margin-top: 14px; text-align: center; line-height: 1.4;">
-            🔒 입력한 이름과 도장 정보는 서버에 수집·저장되지 않으며 인증서 출력용으로만 일시 사용됩니다.
+          <p style="font-size: 0.75rem; color: #64748B; margin-top: 14px; text-align: center; line-height: 1.5;">
+            💡 본 테스트는 재미와 즐거운 수련 동기부여를 위해 제작된 콘텐츠입니다.<br>
+            🔒 입력한 이름과 도장 정보는 서버에 수집·저장되지 않으며 일시 사용됩니다.
           </p>
         </div>
       `;
