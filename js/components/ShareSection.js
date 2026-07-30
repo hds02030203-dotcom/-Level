@@ -93,7 +93,7 @@ export class ShareSectionComponent {
   }
 
   shareInstagramStory(resultData) {
-    CardExporter.exportCardAsPNG(resultData);
+    CardExporter.exportInstaStoryPNG(resultData);
 
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href).catch(() => {});
