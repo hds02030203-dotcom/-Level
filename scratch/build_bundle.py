@@ -8,7 +8,6 @@ with open('js/data/questions.js', 'r', encoding='utf-8') as f:
 
 # Clean export statements
 results_clean = results_code.replace("export const RESULT_TYPES = {", "const RESULT_TYPES = {").strip()
-# Remove header doc comments if any
 if results_clean.startswith("/**"):
     results_clean = results_clean[results_clean.find("*/") + 2:].strip()
 
@@ -18,7 +17,7 @@ if questions_clean.startswith("/**"):
 
 bundle_code = f"""/**
  * Taekwondo Level Test - Universal Standalone Bundle (js/bundle.js)
- * Works途径 on both file:// protocol (double-clicking index.html) and http:// servers.
+ * Works on both file:// protocol (double-clicking index.html) and http:// servers.
  */
 (function () {{
   'use strict';
@@ -144,20 +143,37 @@ bundle_code = f"""/**
   }}
 
   // --------------------------------------------------------------------------
-  // 3.5 STARTSCREEN COMPONENT
+  // 3.5 STARTSCREEN COMPONENT WITH LIVE PARTICIPANT COUNTER
   // --------------------------------------------------------------------------
   class StartScreenComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
       this.onStart = options.onStart || (() => {{}});
+      this.liveTimer = null;
     }}
 
     get container() {{
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
+    static getBaseCount() {{
+      const launchDate = new Date('2026-07-01T00:00:00Z').getTime();
+      const now = Date.now();
+      const elapsedMinutes = Math.max(0, (now - launchDate) / (1000 * 60));
+      const timeBasedCount = Math.floor(elapsedMinutes * 0.4);
+      const extraCount = parseInt(localStorage.getItem('tkd_extra_participants') || '0', 10);
+      return 12840 + timeBasedCount + extraCount;
+    }}
+
     render() {{
       if (!this.container) return;
+
+      if (this.liveTimer) {{
+        clearInterval(this.liveTimer);
+        this.liveTimer = null;
+      }}
+
+      const currentCount = StartScreenComponent.getBaseCount();
 
       this.container.innerHTML = `
         <div class="glass-card landing-view">
@@ -167,8 +183,8 @@ bundle_code = f"""/**
             도장 수련 지식부터 실전 위기 상황 태도까지!<br>
             직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
           </p>
-          <div class="participant-badge">
-            🔥 현재까지 12,450명 참여 완료
+          <div class="participant-badge" id="participantBadge">
+            🔥 현재까지 <span id="participantCount" style="font-weight: 800; font-family: var(--font-accent);">${{currentCount.toLocaleString()}}</span>명 참여 완료
           </div>
           <button class="btn-primary" id="startTestBtn" style="margin-top: 10px;">
             ⚡ 테스트 시작하기
@@ -176,9 +192,66 @@ bundle_code = f"""/**
         </div>
       `;
 
+      this.animateCounter(currentCount);
+      this.startLiveTicker(currentCount);
+      this.bindEvents();
+    }}
+
+    animateCounter(targetCount) {{
+      const countEl = this.container.querySelector('#participantCount');
+      if (!countEl) return;
+
+      const startCount = Math.max(0, targetCount - 35);
+      const duration = 1000;
+      const startTime = performance.now();
+
+      const step = (currentTime) => {{
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(startCount + (targetCount - startCount) * easeOut);
+        
+        countEl.textContent = current.toLocaleString();
+
+        if (progress < 1) {{
+          requestAnimationFrame(step);
+        }} else {{
+          countEl.textContent = targetCount.toLocaleString();
+        }}
+      }};
+
+      requestAnimationFrame(step);
+    }}
+
+    startLiveTicker(initialCount) {{
+      let runningCount = initialCount;
+
+      this.liveTimer = setInterval(() => {{
+        if (Math.random() < 0.45) {{
+          const inc = Math.random() < 0.8 ? 1 : 2;
+          runningCount += inc;
+
+          const badgeEl = this.container.querySelector('#participantBadge');
+          const countEl = this.container.querySelector('#participantCount');
+
+          if (countEl && badgeEl) {{
+            countEl.textContent = runningCount.toLocaleString();
+            badgeEl.classList.remove('count-pulse');
+            void badgeEl.offsetWidth;
+            badgeEl.classList.add('count-pulse');
+          }}
+        }}
+      }}, 4500);
+    }}
+
+    bindEvents() {{
       const startBtn = this.container.querySelector('#startTestBtn');
       if (startBtn) {{
         startBtn.addEventListener('click', () => {{
+          if (this.liveTimer) {{
+            clearInterval(this.liveTimer);
+            this.liveTimer = null;
+          }}
           this.onStart();
         }});
       }}
@@ -612,6 +685,14 @@ bundle_code = f"""/**
     }}
 
     calculateResult() {{
+      // Increment local participation count upon test completion!
+      try {{
+        const currentExtra = parseInt(localStorage.getItem('tkd_extra_participants') || '0', 10);
+        localStorage.setItem('tkd_extra_participants', (currentExtra + 1).toString());
+      }} catch (e) {{
+        console.warn('localStorage access warning:', e);
+      }}
+
       // Find maximum score category
       let topCategory = 'WHITE_BELT';
       let maxScore = -1;
