@@ -140,32 +140,95 @@ class App {
   }
 
   calculateResult() {
-    let topCategory = 'WHITE_BELT';
-    let maxScore = -1;
+    // 1. Group Score Aggregation
+    let masterScore = 0;
+    let playerScore = 0;
+    let danScore = 0;
+    let poomScore = 0;
+    let colorBeltScore = 0;
 
-    for (const [type, score] of Object.entries(this.scores)) {
-      if (score > maxScore) {
-        maxScore = score;
-        topCategory = type;
+    const categoryScores = { ...this.scores };
+
+    for (const [target, points] of Object.entries(this.scores)) {
+      if (['GWANJANG', 'SABEOM'].includes(target)) {
+        masterScore += points;
+      } else if (target === 'PLAYER') {
+        playerScore += points;
+      } else if (target.startsWith('DAN_')) {
+        danScore += points;
+      } else if (target.startsWith('POOM_')) {
+        poomScore += points;
+      } else if (['RED_BELT', 'BLUE_BELT', 'YELLOW_BELT', 'WHITE_BELT'].includes(target)) {
+        colorBeltScore += points;
       }
     }
 
-    // Check Q16 Certification Answer (index for Q16)
-    const q16Index = QUESTIONS.findIndex(q => q.id === 16);
-    const q16AnswerIndex = q16Index !== -1 ? this.answers[q16Index] : undefined;
+    // 2. Discriminator Question Inputs
+    const q16Idx = QUESTIONS.findIndex(q => q.id === 16);
+    const q17Idx = QUESTIONS.findIndex(q => q.id === 17);
+    const q18Idx = QUESTIONS.findIndex(q => q.id === 18);
+    const q19Idx = QUESTIONS.findIndex(q => q.id === 19);
 
-    const hasBothCerts = (q16AnswerIndex === 0);
-    const hasOneCert = (q16AnswerIndex === 0 || q16AnswerIndex === 1);
+    const q16Ans = q16Idx !== -1 ? this.answers[q16Idx] : undefined; // 0: 2certs, 1: 1cert, 2: dan, 3: none
+    const q17Ans = q17Idx !== -1 ? this.answers[q17Idx] : undefined; // 0: high Dan, 1: mid Dan, 2: basic, 3: stance
+    const q18Ans = q18Idx !== -1 ? this.answers[q18Idx] : undefined; // 0: 10y+, 1: 3-10y, 2: 6m-3y, 3: <6m
+    const q19Ans = q19Idx !== -1 ? this.answers[q19Idx] : undefined; // 0: master, 1: player, 2: poom/dan, 3: yellow
 
-    // Business Rule Enforcement:
-    // 1. 관장님(GWANJANG): 반드시 2개 다 소유해야 가능! (미소유 시 사범님/5단으로 조정)
-    if (topCategory === 'GWANJANG' && !hasBothCerts) {
-      topCategory = hasOneCert ? 'SABEOM' : 'DAN_5';
+    let topCategory = 'WHITE_BELT';
+
+    // 3. Hierarchical Classification Rules
+    // RULE 1: MASTER TIER (관장님 / 사범님)
+    if (q16Ans === 0 && (q19Ans === 0 || masterScore >= 2 || q18Ans === 0)) {
+      topCategory = 'GWANJANG';
+    } else if ((q16Ans === 0 || q16Ans === 1) && (masterScore >= 2 || (categoryScores['SABEOM'] || 0) >= 1)) {
+      topCategory = 'SABEOM';
     }
+    // RULE 2: ELITE ATHLETE (선수)
+    else if (playerScore >= 3 || (q19Ans === 1 && playerScore >= 2)) {
+      topCategory = 'PLAYER';
+    }
+    // RULE 3: BLACK BELT DAN TIER (1단 ~ 5단)
+    else if (danScore >= poomScore && danScore >= colorBeltScore && (danScore >= 2 || q16Ans === 2 || q18Ans <= 1)) {
+      if (q17Ans === 0 && q18Ans === 0) {
+        topCategory = 'DAN_5';
+      } else if (q17Ans === 0 || q18Ans === 0 || (categoryScores['DAN_4'] || 0) >= 2) {
+        topCategory = 'DAN_4';
+      } else if (q17Ans === 1 || q18Ans === 1 || (categoryScores['DAN_3'] || 0) >= 2) {
+        topCategory = 'DAN_3';
+      } else if ((categoryScores['DAN_2'] || 0) >= 2) {
+        topCategory = 'DAN_2';
+      } else {
+        topCategory = 'DAN_1';
+      }
+    }
+    // RULE 4: POOM TIER (1품 ~ 4품)
+    else if (poomScore > danScore && poomScore >= colorBeltScore) {
+      if ((categoryScores['POOM_4'] || 0) >= 2 || (q17Ans === 1 && q19Ans === 2)) {
+        topCategory = 'POOM_4';
+      } else if ((categoryScores['POOM_3'] || 0) >= 2 || q17Ans === 1) {
+        topCategory = 'POOM_3';
+      } else if ((categoryScores['POOM_2'] || 0) >= 2) {
+        topCategory = 'POOM_2';
+      } else {
+        topCategory = 'POOM_1';
+      }
+    }
+    // RULE 5: COLOR BELT TIER (빨간 띠, 파란 띠, 노란 띠, 흰 띠)
+    else {
+      const red = categoryScores['RED_BELT'] || 0;
+      const blue = categoryScores['BLUE_BELT'] || 0;
+      const yellow = categoryScores['YELLOW_BELT'] || 0;
+      const white = categoryScores['WHITE_BELT'] || 0;
 
-    // 2. 사범님(SABEOM): 자격증 1개 이상 소유 시 가능! (미소유 시 4단으로 조정)
-    if (topCategory === 'SABEOM' && !hasOneCert) {
-      topCategory = 'DAN_4';
+      if (q18Ans === 2 || (red >= blue && red >= yellow && red >= white && red > 0)) {
+        topCategory = 'RED_BELT';
+      } else if (q17Ans === 2 || (blue >= yellow && blue >= white && blue > 0)) {
+        topCategory = 'BLUE_BELT';
+      } else if (yellow >= white && yellow > 0) {
+        topCategory = 'YELLOW_BELT';
+      } else {
+        topCategory = 'WHITE_BELT';
+      }
     }
 
     this.finalResult = {
