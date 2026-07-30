@@ -9,8 +9,7 @@ import { HeaderComponent } from './js/components/Header.js';
 import { StartScreenComponent } from './js/components/StartScreen.js';
 import { QuizScreenComponent } from './js/components/QuizScreen.js';
 import { LoadingScreenComponent } from './js/components/LoadingScreen.js';
-import { ResultCardComponent } from './js/components/ResultCard.js';
-import { ShareSectionComponent } from './js/components/ShareSection.js';
+import { ResultScreenComponent } from './js/components/ResultScreen.js';
 
 class App {
   constructor() {
@@ -48,9 +47,7 @@ class App {
 
     this.loadingScreen = new LoadingScreenComponent('mainContainer');
 
-    this.resultCard = new ResultCardComponent('resultCardContainer');
-
-    this.shareSection = new ShareSectionComponent('shareContainer', {
+    this.resultScreen = new ResultScreenComponent('mainContainer', {
       onRestart: () => this.handleRestart()
     });
   }
@@ -87,18 +84,8 @@ class App {
 
     } else if (this.state === 'RESULT') {
       document.getElementById('progressContainer').innerHTML = '';
-      mainContainer.innerHTML = `
-        <div class="result-view">
-          <div id="resultCardContainer"></div>
-          <div id="shareContainer"></div>
-        </div>
-      `;
-
-      this.resultCard.container = document.getElementById('resultCardContainer');
-      this.resultCard.render(this.finalResult);
-
-      this.shareSection.container = document.getElementById('shareContainer');
-      this.shareSection.render(this.finalResult);
+      this.resultScreen.container = mainContainer;
+      this.resultScreen.render(this.finalResult);
     }
   }
 

@@ -550,6 +550,84 @@
   }
 
   // --------------------------------------------------------------------------
+  // 3.8 RESULTSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class ResultScreenComponent {
+    constructor(containerId, options = {}) {
+      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.onRestart = options.onRestart || (() => {});
+    }
+
+    render(resultData) {
+      if (!this.container || !resultData) return;
+
+      this.container.innerHTML = `
+        <div class="result-view">
+          <div class="certificate-card">
+            <div class="top-percent-tag">🔥 국기원 통계 ${resultData.topPercent}</div>
+            <div class="belt-badge-icon">${resultData.icon}</div>
+            <h2 class="result-belt-title">${resultData.type}</h2>
+            <div class="result-subtitle">부칭호: ${resultData.subTitle}</div>
+            
+            <p class="result-desc">${resultData.description}</p>
+            <p style="font-style: italic; color: var(--gold-glow); font-size: 0.85rem; margin-bottom: 16px;">
+              ${resultData.quote}
+            </p>
+
+            <div class="chemistry-box">
+              <div class="chem-card chem-best">
+                <div class="chem-title">💖 환상의 짝꿍</div>
+                <div class="chem-value">${resultData.bestMatch}</div>
+              </div>
+              <div class="chem-card chem-worst">
+                <div class="chem-title">💔 환장의 짝꿍</div>
+                <div class="chem-value">${resultData.worstMatch}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <button class="btn-primary" id="downloadBtn">
+              📥 결과 카드 이미지 저장 (PNG)
+            </button>
+            <button class="btn-secondary" id="copyBtn">
+              🔗 결과 링크 복사하기
+            </button>
+            <button class="btn-secondary" id="restartBtn" style="background: transparent; border-color: rgba(255,255,255,0.15);">
+              🔄 테스트 다시하기
+            </button>
+          </div>
+        </div>
+      `;
+
+      const downloadBtn = this.container.querySelector('#downloadBtn');
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', () => {
+          CardExporter.exportCardAsPNG(resultData);
+        });
+      }
+
+      const copyBtn = this.container.querySelector('#copyBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('결과 페이지 링크가 클립보드에 복사되었습니다!');
+          }).catch(() => {
+            alert('링크가 복사되었습니다.');
+          });
+        });
+      }
+
+      const restartBtn = this.container.querySelector('#restartBtn');
+      if (restartBtn) {
+        restartBtn.addEventListener('click', () => {
+          this.onRestart();
+        });
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // 4. MAIN APP CONTROLLER
   // --------------------------------------------------------------------------
   class TaekwondoApp {
@@ -576,6 +654,10 @@
       });
 
       this.loadingScreen = new LoadingScreenComponent('mainContainer');
+
+      this.resultScreen = new ResultScreenComponent('mainContainer', {
+        onRestart: () => this.handleRestart()
+      });
 
       this.init();
     }
@@ -640,62 +722,8 @@
 
       } else if (this.state === 'RESULT') {
         if (progressContainer) progressContainer.innerHTML = '';
-        const res = this.finalResult;
-
-        mainContainer.innerHTML = `
-          <div class="result-view">
-            <div class="certificate-card">
-              <div class="top-percent-tag">🔥 국기원 통계 ${res.topPercent}</div>
-              <div class="belt-badge-icon">${res.icon}</div>
-              <h2 class="result-belt-title">${res.type}</h2>
-              <div class="result-subtitle">부칭호: ${res.subTitle}</div>
-              
-              <p class="result-desc">${res.description}</p>
-              <p style="font-style: italic; color: var(--gold-glow); font-size: 0.85rem; margin-bottom: 16px;">
-                ${res.quote}
-              </p>
-
-              <div class="chemistry-box">
-                <div class="chem-card chem-best">
-                  <div class="chem-title">💖 환상의 짝꿍</div>
-                  <div class="chem-value">${res.bestMatch}</div>
-                </div>
-                <div class="chem-card chem-worst">
-                  <div class="chem-title">💔 환장의 짝꿍</div>
-                  <div class="chem-value">${res.worstMatch}</div>
-                </div>
-              </div>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-              <button class="btn-primary" id="downloadBtn">
-                📥 결과 카드 이미지 저장 (PNG)
-              </button>
-              <button class="btn-secondary" id="copyBtn">
-                🔗 결과 링크 복사하기
-              </button>
-              <button class="btn-secondary" id="restartBtn" style="background: transparent; border-color: rgba(255,255,255,0.15);">
-                🔄 테스트 다시하기
-              </button>
-            </div>
-          </div>
-        `;
-
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-          CardExporter.exportCardAsPNG(res);
-        });
-
-        document.getElementById('copyBtn').addEventListener('click', () => {
-          navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('결과 페이지 링크가 클립보드에 복사되었습니다!');
-          }).catch(() => {
-            alert('링크가 복사되었습니다.');
-          });
-        });
-
-        document.getElementById('restartBtn').addEventListener('click', () => {
-          this.handleRestart();
-        });
+        this.resultScreen.container = mainContainer;
+        this.resultScreen.render(this.finalResult);
       }
     }
 
