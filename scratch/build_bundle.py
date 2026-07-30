@@ -55,17 +55,27 @@ bundle_code = f"""/**
       ctx.lineWidth = 6;
       ctx.strokeRect(20, 20, 560, 760);
 
+      // Inner Line Frame
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
       ctx.lineWidth = 2;
       ctx.strokeRect(30, 30, 540, 740);
 
-      // Title
+      // Dynamic Linked Header Title (Name + Dojang)
+      let certTitle = '🥋 태권도 레벨 공식 인증서';
+      if (resultData.userName && resultData.userDojang) {{
+        certTitle = `🥋 [ ${{resultData.userDojang}} ] ${{resultData.userName}} 님의 인증서`;
+      }} else if (resultData.userName) {{
+        certTitle = `🥋 ${{resultData.userName}} 님의 태권도 레벨 인증서`;
+      }} else if (resultData.userDojang) {{
+        certTitle = `🥋 [ ${{resultData.userDojang}} ] 수련생의 인증서`;
+      }}
+
       ctx.fillStyle = '#94A3B8';
       ctx.font = 'bold 20px Pretendard, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
+      ctx.fillText(certTitle, 300, 80);
 
-      // Top % Tag Pill
+      // Top Percent Tag Pill
       ctx.fillStyle = '#F59E0B';
       ctx.beginPath();
       if (ctx.roundRect) {{
@@ -83,7 +93,7 @@ bundle_code = f"""/**
       ctx.font = '80px sans-serif';
       ctx.fillText(resultData.icon, 300, 240);
 
-      // Level Title
+      // Result Level Title
       ctx.fillStyle = '#FFFFFF';
       ctx.font = '900 38px Pretendard, sans-serif';
       ctx.fillText(resultData.type, 300, 310);
@@ -115,7 +125,8 @@ bundle_code = f"""/**
       const dataUrl = canvas.toDataURL('image/png');
       const a = document.createElement('a');
       a.href = dataUrl;
-      a.download = `태권도_레벨_인증서_${{resultData.type.replace(/\\s+/g, '_')}}.png`;
+      const namePart = resultData.userName ? `_${{resultData.userName}}` : '';
+      a.download = `태권도_레벨_인증서${{namePart}}_${{resultData.type.replace(/\\s+/g, '_')}}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -143,7 +154,7 @@ bundle_code = f"""/**
   }}
 
   // --------------------------------------------------------------------------
-  // 3.5 STARTSCREEN COMPONENT WITH LIVE PARTICIPANT COUNTER
+  // 3.5 STARTSCREEN COMPONENT WITH USER INPUTS & LIVE COUNTER
   // --------------------------------------------------------------------------
   class StartScreenComponent {{
     constructor(containerId, options = {{}}) {{
@@ -183,6 +194,18 @@ bundle_code = f"""/**
             도장 수련 지식부터 실전 위기 상황 태도까지!<br>
             직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
           </p>
+
+          <div class="user-info-inputs">
+            <div class="input-group">
+              <label for="userNameInput">👤 수련생 / 지도자 이름 (선택)</label>
+              <input type="text" id="userNameInput" placeholder="예: 홍길동" maxlength="12" autocomplete="off" />
+            </div>
+            <div class="input-group">
+              <label for="userDojangInput">🥋 소속 도장 이름 (선택)</label>
+              <input type="text" id="userDojangInput" placeholder="예: 용인대 태권도장" maxlength="16" autocomplete="off" />
+            </div>
+          </div>
+
           <div class="participant-badge" id="participantBadge">
             🔥 현재까지 <span id="participantCount" style="font-weight: 800; font-family: var(--font-accent);">${{currentCount.toLocaleString()}}</span>명 참여 완료
           </div>
@@ -252,7 +275,14 @@ bundle_code = f"""/**
             clearInterval(this.liveTimer);
             this.liveTimer = null;
           }}
-          this.onStart();
+
+          const nameInput = this.container.querySelector('#userNameInput');
+          const dojangInput = this.container.querySelector('#userDojangInput');
+
+          const userName = nameInput ? nameInput.value.trim() : '';
+          const userDojang = dojangInput ? dojangInput.value.trim() : '';
+
+          this.onStart({{ userName, userDojang }});
         }});
       }}
     }}
@@ -363,12 +393,73 @@ bundle_code = f"""/**
   }}
 
   // --------------------------------------------------------------------------
-  // 3.8 RESULTSCREEN COMPONENT
+  // 3.8 DISTRIBUTION CHART COMPONENT
+  // --------------------------------------------------------------------------
+  class DistributionChartComponent {{
+    constructor(containerId) {{
+      this.containerId = containerId;
+    }}
+
+    get container() {{
+      return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    render(userResult) {{
+      if (!this.container || !userResult) return;
+
+      const userCategoryId = userResult.id;
+
+      const tierData = [
+        {{ id: 'GWANJANG', icon: '👑', label: '관장님 (마스터)', pct: '0.001%', barWidth: '100%', color: '#F59E0B' }},
+        {{ id: 'SABEOM', icon: '🥋', label: '사범님 (솔선수범 리더)', pct: '0.1%', barWidth: '95%', color: '#10B981' }},
+        {{ id: 'PLAYER', icon: '🥊', label: '선수 (승부사의 기상)', pct: '1.0%', barWidth: '88%', color: '#2563EB' }},
+        {{ id: 'DAN', icon: '🥋', label: '유단자 (1~5단)', pct: '12.0%', barWidth: '72%', color: '#F59E0B', group: ['DAN_1', 'DAN_2', 'DAN_3', 'DAN_4', 'DAN_5'] }},
+        {{ id: 'POOM', icon: '🏅', label: '유품자 (1~4품)', pct: '25.0%', barWidth: '60%', color: '#EF4444', group: ['POOM_1', 'POOM_2', 'POOM_3', 'POOM_4'] }},
+        {{ id: 'RED_BELT', icon: '❤️', label: '빨간 띠 (열정의 수련생)', pct: '18.0%', barWidth: '50%', color: '#EF4444' }},
+        {{ id: 'BLUE_BELT', icon: '💙', label: '파란 띠 (푸른 자신감)', pct: '17.0%', barWidth: '42%', color: '#3B82F6' }},
+        {{ id: 'YELLOW_BELT', icon: '💛', label: '노란 띠 (기초의 새싹)', pct: '15.0%', barWidth: '35%', color: '#EAB308' }},
+        {{ id: 'WHITE_BELT', icon: '🤍', label: '흰 띠 (태권도 첫걸음)', pct: '11.9%', barWidth: '28%', color: '#E2E8F0' }}
+      ];
+
+      const rowsHtml = tierData.map(tier => {{
+        const isUserTier = (tier.id === userCategoryId) || (tier.group && tier.group.includes(userCategoryId));
+        const badgeHtml = isUserTier ? `<span style="background: var(--gold-accent); color: #0F172A; padding: 2px 6px; border-radius: 99px; font-size: 0.7rem; font-weight: 900; margin-left: 4px;">👈 내 위치</span>` : '';
+
+        return `
+          <div class="chart-row ${{isUserTier ? 'is-user-tier' : ''}}">
+            <div class="chart-row-meta">
+              <span class="chart-label">${{tier.icon}} ${{tier.label}} ${{badgeHtml}}</span>
+              <span class="chart-val">${{tier.pct}}</span>
+            </div>
+            <div class="chart-bar-bg">
+              <div class="chart-bar-fill" style="width: ${{tier.barWidth}}; background: ${{tier.color}};"></div>
+            </div>
+          </div>
+        `;
+      }}).join('');
+
+      this.container.innerHTML = `
+        <div class="chart-container-card">
+          <div class="chart-header">
+            <div class="chart-title">📊 전체 수련생 레벨 분포도</div>
+            <div class="chart-subtag">국기원 통계 데이터</div>
+          </div>
+          <div class="chart-list">
+            ${{rowsHtml}}
+          </div>
+        </div>
+      `;
+    }}
+  }}
+
+  // --------------------------------------------------------------------------
+  // 3.9 RESULTSCREEN COMPONENT
   // --------------------------------------------------------------------------
   class ResultScreenComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
       this.onRestart = options.onRestart || (() => {{}});
+      this.distributionChart = new DistributionChartComponent('distributionChartContainer');
     }}
 
     get container() {{
@@ -378,9 +469,21 @@ bundle_code = f"""/**
     render(resultData) {{
       if (!this.container || !resultData) return;
 
+      let certTitle = '태권도 레벨 공식 인증서';
+      if (resultData.userName && resultData.userDojang) {{
+        certTitle = `[ ${{resultData.userDojang}} ] ${{resultData.userName}} 님의 레벨 인증서`;
+      }} else if (resultData.userName) {{
+        certTitle = `${{resultData.userName}} 님의 태권도 레벨 인증서`;
+      }} else if (resultData.userDojang) {{
+        certTitle = `[ ${{resultData.userDojang}} ] 수련생의 레벨 인증서`;
+      }}
+
       this.container.innerHTML = `
         <div class="result-view">
           <div class="certificate-card">
+            <div style="font-size: 0.85rem; font-weight: 800; color: #94A3B8; margin-bottom: 8px; letter-spacing: -0.2px;">
+              🥋 ${{certTitle}}
+            </div>
             <div class="top-percent-tag">🔥 ${{resultData.topPercent}}</div>
             <div class="belt-badge-icon">${{resultData.icon}}</div>
             <h2 class="result-belt-title">${{resultData.type}}</h2>
@@ -416,8 +519,13 @@ bundle_code = f"""/**
               🔄 테스트 다시 도전하기
             </button>
           </div>
+
+          <div id="distributionChartContainer"></div>
         </div>
       `;
+
+      this.distributionChart.container = this.container.querySelector('#distributionChartContainer');
+      this.distributionChart.render(resultData);
 
       this.bindEvents(resultData);
     }}
@@ -468,10 +576,12 @@ bundle_code = f"""/**
             window.Kakao.init(kakaoKey);
           }}
 
+          const titleText = resultData.userName ? `🥋 [${{resultData.userName}}] 님의 태권도 레벨: ${{resultData.type}}` : `🥋 나의 태권도 레벨: [${{resultData.type}}]`;
+
           window.Kakao.Share.sendDefault({{
             objectType: 'feed',
             content: {{
-              title: `🥋 나의 태권도 레벨: [${{resultData.type}}]`,
+              title: titleText,
               description: `${{resultData.subTitle}} | ${{resultData.topPercent}}\\n${{resultData.description}}`,
               imageUrl: window.location.origin + '/assets/og-thumb.png',
               link: {{
@@ -515,7 +625,7 @@ bundle_code = f"""/**
   }}
 
   // --------------------------------------------------------------------------
-  // 3.9 HEADER COMPONENT
+  // 3.10 HEADER COMPONENT
   // --------------------------------------------------------------------------
   class HeaderComponent {{
     constructor(containerId, options = {{}}) {{
@@ -572,10 +682,12 @@ bundle_code = f"""/**
       this.answers = [];
       this.scores = {{}};
       this.finalResult = null;
+      this.userInfo = {{ userName: '', userDojang: '' }};
 
       this.header = new HeaderComponent('headerContainer');
       this.startScreen = new StartScreenComponent('mainContainer', {{
-        onStart: () => {{
+        onStart: (userInfo = {{}}) => {{
+          this.userInfo = userInfo;
           this.state = 'QUIZ';
           this.currentStep = 0;
           this.answers = [];
@@ -724,7 +836,11 @@ bundle_code = f"""/**
         topCategory = 'DAN_4';
       }}
 
-      this.finalResult = RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT;
+      this.finalResult = {{
+        ...(RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT),
+        userName: this.userInfo.userName || '',
+        userDojang: this.userInfo.userDojang || ''
+      }};
     }}
   }}
 

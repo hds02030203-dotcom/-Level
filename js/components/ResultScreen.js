@@ -1,19 +1,25 @@
 /**
  * ResultScreen Component (js/components/ResultScreen.js)
- * Encapsulates the entire result view based on prd.md Section 3.4 & design.md Section 4.3.
+ * Encapsulates the entire result view with certificate card, share action buttons, and level distribution chart.
  */
 import { ResultCardComponent } from './ResultCard.js';
 import { ShareSectionComponent } from './ShareSection.js';
+import { DistributionChartComponent } from './DistributionChart.js';
 
 export class ResultScreenComponent {
   constructor(containerId, options = {}) {
-    this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+    this.containerId = containerId;
     this.onRestart = options.onRestart || (() => {});
 
     this.resultCard = new ResultCardComponent('resultCardContainer');
     this.shareSection = new ShareSectionComponent('shareContainer', {
       onRestart: () => this.onRestart()
     });
+    this.distributionChart = new DistributionChartComponent('distributionChartContainer');
+  }
+
+  get container() {
+    return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
   }
 
   render(resultData) {
@@ -23,6 +29,7 @@ export class ResultScreenComponent {
       <div class="result-view">
         <div id="resultCardContainer"></div>
         <div id="shareContainer"></div>
+        <div id="distributionChartContainer"></div>
       </div>
     `;
 
@@ -31,5 +38,8 @@ export class ResultScreenComponent {
 
     this.shareSection.container = document.getElementById('shareContainer');
     this.shareSection.render(resultData);
+
+    this.distributionChart.container = document.getElementById('distributionChartContainer');
+    this.distributionChart.render(resultData);
   }
 }

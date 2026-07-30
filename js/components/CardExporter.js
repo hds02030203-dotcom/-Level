@@ -1,6 +1,6 @@
 /**
  * CardExporter Component
- * Renders high-resolution Canvas and exports PNG image card for one-click download.
+ * Renders high-resolution Canvas and exports PNG image card linked with User Name & Dojang.
  */
 export class CardExporter {
   static exportCardAsPNG(resultData) {
@@ -28,16 +28,29 @@ export class CardExporter {
     ctx.lineWidth = 2;
     ctx.strokeRect(30, 30, 540, 740);
 
-    // Header Title
+    // Dynamic Linked Header Title (Name + Dojang)
+    let certTitle = '🥋 태권도 레벨 공식 인증서';
+    if (resultData.userName && resultData.userDojang) {
+      certTitle = `🥋 [ ${resultData.userDojang} ] ${resultData.userName} 님의 인증서`;
+    } else if (resultData.userName) {
+      certTitle = `🥋 ${resultData.userName} 님의 태권도 레벨 인증서`;
+    } else if (resultData.userDojang) {
+      certTitle = `🥋 [ ${resultData.userDojang} ] 수련생의 인증서`;
+    }
+
     ctx.fillStyle = '#94A3B8';
     ctx.font = 'bold 20px Pretendard, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('🥋 태권도 레벨 테스트 공식 인증서', 300, 80);
+    ctx.fillText(certTitle, 300, 80);
 
     // Top Percent Tag Pill
     ctx.fillStyle = '#F59E0B';
     ctx.beginPath();
-    ctx.roundRect(190, 110, 220, 36, 18);
+    if (ctx.roundRect) {
+      ctx.roundRect(190, 110, 220, 36, 18);
+    } else {
+      ctx.rect(190, 110, 220, 36);
+    }
     ctx.fill();
 
     ctx.fillStyle = '#0F172A';
@@ -82,13 +95,14 @@ export class CardExporter {
     // Footer Watermark
     ctx.fillStyle = '#64748B';
     ctx.font = '14px Pretendard, sans-serif';
-    ctx.fillText('https://github.com/hds02030203-dotcom/-Level.git', 300, 750);
+    ctx.fillText('🥋 태권도 레벨 테스트 (Taekwondo Level Test)', 300, 750);
 
     // Convert Canvas to PNG and Trigger Download
     const dataUrl = canvas.toDataURL('image/png');
     const downloadAnchor = document.createElement('a');
     downloadAnchor.href = dataUrl;
-    downloadAnchor.download = `태권도_레벨_인증서_${resultData.type.replace(/\s+/g, '_')}.png`;
+    const namePart = resultData.userName ? `_${resultData.userName}` : '';
+    downloadAnchor.download = `태권도_레벨_인증서${namePart}_${resultData.type.replace(/\s+/g, '_')}.png`;
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);

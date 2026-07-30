@@ -1,6 +1,6 @@
 /**
  * StartScreen Component (js/components/StartScreen.js)
- * Renders the main landing screen with live dynamic participant counter.
+ * Renders the main landing screen with optional user info inputs and dynamic live participant counter.
  */
 export class StartScreenComponent {
   constructor(containerId, options = {}) {
@@ -40,6 +40,18 @@ export class StartScreenComponent {
           도장 수련 지식부터 실전 위기 상황 태도까지!<br>
           직관적인 상황별 질문을 통해 나의 진짜 태권도 레벨과 칭호를 측정해보세요.
         </p>
+
+        <div class="user-info-inputs">
+          <div class="input-group">
+            <label for="userNameInput">👤 수련생 / 지도자 이름 (선택)</label>
+            <input type="text" id="userNameInput" placeholder="예: 홍길동" maxlength="12" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="userDojangInput">🥋 소속 도장 이름 (선택)</label>
+            <input type="text" id="userDojangInput" placeholder="예: 용인대 태권도장" maxlength="16" autocomplete="off" />
+          </div>
+        </div>
+
         <div class="participant-badge" id="participantBadge">
           🔥 현재까지 <span id="participantCount" style="font-weight: 800; font-family: var(--font-accent);">${currentCount.toLocaleString()}</span>명 참여 완료
         </div>
@@ -58,8 +70,8 @@ export class StartScreenComponent {
     const countEl = this.container.querySelector('#participantCount');
     if (!countEl) return;
 
-    const startCount = targetCount - 35;
-    const duration = 1000; // 1s
+    const startCount = Math.max(0, targetCount - 35);
+    const duration = 1000;
     const startTime = performance.now();
 
     const step = (currentTime) => {
@@ -84,7 +96,6 @@ export class StartScreenComponent {
     let runningCount = initialCount;
 
     this.liveTimer = setInterval(() => {
-      // 30% chance to increment by 1 or 2 every 4.5 seconds to simulate live traffic
       if (Math.random() < 0.45) {
         const inc = Math.random() < 0.8 ? 1 : 2;
         runningCount += inc;
@@ -95,7 +106,6 @@ export class StartScreenComponent {
         if (countEl && badgeEl) {
           countEl.textContent = runningCount.toLocaleString();
           badgeEl.classList.remove('count-pulse');
-          // Trigger reflow to restart CSS animation
           void badgeEl.offsetWidth;
           badgeEl.classList.add('count-pulse');
         }
@@ -111,7 +121,14 @@ export class StartScreenComponent {
           clearInterval(this.liveTimer);
           this.liveTimer = null;
         }
-        this.onStart();
+
+        const nameInput = this.container.querySelector('#userNameInput');
+        const dojangInput = this.container.querySelector('#userDojangInput');
+
+        const userName = nameInput ? nameInput.value.trim() : '';
+        const userDojang = dojangInput ? dojangInput.value.trim() : '';
+
+        this.onStart({ userName, userDojang });
       });
     }
   }

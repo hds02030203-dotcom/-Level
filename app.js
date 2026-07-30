@@ -30,8 +30,11 @@ class App {
       }
     });
 
+    this.userInfo = { userName: '', userDojang: '' };
+
     this.startScreen = new StartScreenComponent('mainContainer', {
-      onStart: () => {
+      onStart: (userInfo = {}) => {
+        this.userInfo = userInfo;
         this.state = 'QUIZ';
         this.currentStep = 0;
         this.answers = [];
@@ -169,7 +172,11 @@ class App {
       topCategory = 'DAN_4';
     }
 
-    this.finalResult = RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT;
+    this.finalResult = {
+      ...(RESULT_TYPES[topCategory] || RESULT_TYPES.WHITE_BELT),
+      userName: this.userInfo.userName || '',
+      userDojang: this.userInfo.userDojang || ''
+    };
   }
 }
 
