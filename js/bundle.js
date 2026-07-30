@@ -454,6 +454,76 @@
   }
 
   // --------------------------------------------------------------------------
+  // 3.6 QUIZSCREEN COMPONENT
+  // --------------------------------------------------------------------------
+  class QuizScreenComponent {
+    constructor(containerId, options = {}) {
+      this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
+      this.onSelectOption = options.onSelectOption || (() => {});
+      this.onPrevStep = options.onPrevStep || (() => {});
+    }
+
+    render(questionData, currentStep, totalSteps, selectedOptionIndex = null) {
+      if (!this.container || !questionData) return;
+
+      const progressContainer = document.getElementById('progressContainer');
+      const percentage = Math.round((currentStep / totalSteps) * 100);
+
+      if (progressContainer) {
+        progressContainer.innerHTML = `
+          <div class="progress-container">
+            <div class="progress-header">
+              <span>진행률</span>
+              <span class="progress-counter">Q. ${String(currentStep).padStart(2, '0')} / ${String(totalSteps).padStart(2, '0')}</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: ${percentage}%;"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      const optionsHtml = questionData.options.map((opt, idx) => `
+        <button class="option-card ${selectedOptionIndex === idx ? 'selected' : ''}" data-index="${idx}">
+          <span class="option-index">${idx + 1}</span>
+          <span class="option-text">${opt.text}</span>
+        </button>
+      `).join('');
+
+      const backBtnHtml = currentStep > 1
+        ? `<button class="btn-back" id="prevBtn">← 이전 질문으로</button>`
+        : `<span></span>`;
+
+      this.container.innerHTML = `
+        <div class="glass-card quiz-view">
+          <h2 class="question-text">${questionData.question}</h2>
+          <div class="options-group">
+            ${optionsHtml}
+          </div>
+          <div class="nav-buttons">
+            ${backBtnHtml}
+          </div>
+        </div>
+      `;
+
+      const optionBtns = this.container.querySelectorAll('.option-card');
+      optionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.getAttribute('data-index'), 10);
+          this.onSelectOption(questionData, idx);
+        });
+      });
+
+      const prevBtn = this.container.querySelector('#prevBtn');
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+          this.onPrevStep();
+        });
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // 4. MAIN APP CONTROLLER
   // --------------------------------------------------------------------------
   class TaekwondoApp {
@@ -472,6 +542,11 @@
           this.scores = {};
           this.render();
         }
+      });
+
+      this.quizScreen = new QuizScreenComponent('mainContainer', {
+        onSelectOption: (question, optionIndex) => this.handleSelect(question, optionIndex),
+        onPrevStep: () => this.handlePrev()
       });
 
       this.init();
@@ -517,60 +592,12 @@
 
       } else if (this.state === 'QUIZ') {
         const question = QUESTIONS[this.currentStep];
-        const totalSteps = QUESTIONS.length;
-        const percentage = Math.round(((this.currentStep + 1) / totalSteps) * 100);
+        const selectedOptionIndex = this.answers[this.currentStep] !== undefined
+          ? this.answers[this.currentStep]
+          : null;
 
-        if (progressContainer) {
-          progressContainer.innerHTML = `
-            <div class="progress-container">
-              <div class="progress-header">
-                <span>진행률</span>
-                <span class="progress-counter">Q. ${String(this.currentStep + 1).padStart(2, '0')} / ${String(totalSteps).padStart(2, '0')}</span>
-              </div>
-              <div class="progress-track">
-                <div class="progress-fill" style="width: ${percentage}%;"></div>
-              </div>
-            </div>
-          `;
-        }
-
-        const optionsHtml = question.options.map((opt, idx) => `
-          <button class="option-card ${this.answers[this.currentStep] === idx ? 'selected' : ''}" data-index="${idx}">
-            <span class="option-index">${idx + 1}</span>
-            <span class="option-text">${opt.text}</span>
-          </button>
-        `).join('');
-
-        const backBtnHtml = this.currentStep > 0
-          ? `<button class="btn-back" id="prevBtn">← 이전 질문으로</button>`
-          : `<span></span>`;
-
-        mainContainer.innerHTML = `
-          <div class="glass-card quiz-view">
-            <h2 class="question-text">${question.question}</h2>
-            <div class="options-group">
-              ${optionsHtml}
-            </div>
-            <div class="nav-buttons">
-              ${backBtnHtml}
-            </div>
-          </div>
-        `;
-
-        const optionBtns = mainContainer.querySelectorAll('.option-card');
-        optionBtns.forEach(btn => {
-          btn.addEventListener('click', () => {
-            const idx = parseInt(btn.getAttribute('data-index'), 10);
-            this.handleSelect(question, idx);
-          });
-        });
-
-        const prevBtn = mainContainer.querySelector('#prevBtn');
-        if (prevBtn) {
-          prevBtn.addEventListener('click', () => {
-            this.handlePrev();
-          });
-        }
+        this.quizScreen.container = mainContainer;
+        this.quizScreen.render(question, this.currentStep + 1, QUESTIONS.length, selectedOptionIndex);
 
       } else if (this.state === 'LOADING') {
         if (progressContainer) progressContainer.innerHTML = '';

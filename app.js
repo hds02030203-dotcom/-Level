@@ -7,8 +7,7 @@ import { RESULT_TYPES } from './js/data/results.js';
 
 import { HeaderComponent } from './js/components/Header.js';
 import { StartScreenComponent } from './js/components/StartScreen.js';
-import { ProgressBarComponent } from './js/components/ProgressBar.js';
-import { QuestionCardComponent } from './js/components/QuestionCard.js';
+import { QuizScreenComponent } from './js/components/QuizScreen.js';
 import { ResultCardComponent } from './js/components/ResultCard.js';
 import { ShareSectionComponent } from './js/components/ShareSection.js';
 
@@ -41,9 +40,7 @@ class App {
       }
     });
 
-    this.progressBar = new ProgressBarComponent('progressContainer');
-
-    this.questionCard = new QuestionCardComponent('quizContainer', {
+    this.quizScreen = new QuizScreenComponent('mainContainer', {
       onSelectOption: (question, optionIndex) => this.handleOptionSelect(question, optionIndex),
       onPrevStep: () => this.handlePrevStep()
     });
@@ -67,15 +64,12 @@ class App {
 
     } else if (this.state === 'QUIZ') {
       const question = QUESTIONS[this.currentStep];
-      this.progressBar.render(this.currentStep + 1, QUESTIONS.length);
-
-      mainContainer.innerHTML = `<div id="quizContainer"></div>`;
-      this.questionCard.container = document.getElementById('quizContainer');
       const previousSelectedIndex = this.answers[this.currentStep] !== undefined 
         ? this.answers[this.currentStep] 
         : null;
 
-      this.questionCard.render(question, this.currentStep + 1, previousSelectedIndex);
+      this.quizScreen.container = mainContainer;
+      this.quizScreen.render(question, this.currentStep + 1, QUESTIONS.length, previousSelectedIndex);
 
     } else if (this.state === 'LOADING') {
       document.getElementById('progressContainer').innerHTML = '';
