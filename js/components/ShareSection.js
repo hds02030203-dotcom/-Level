@@ -21,6 +21,9 @@ export class ShareSectionComponent {
         <button class="btn-secondary" id="kakaoShareBtn" style="background: #FEE500; color: #191919; border: none; font-weight: 800;">
           💬 카카오톡으로 결과 공유하기
         </button>
+        <button class="btn-secondary" id="instaShareBtn" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: #FFFFFF; border: none; font-weight: 800;">
+          📸 인스타그램 스토리에 공유하기
+        </button>
         <button class="btn-secondary" id="copyUrlBtn">
           🔗 결과 링크 복사하기
         </button>
@@ -48,6 +51,13 @@ export class ShareSectionComponent {
       });
     }
 
+    const instaShareBtn = this.container.querySelector('#instaShareBtn');
+    if (instaShareBtn) {
+      instaShareBtn.addEventListener('click', () => {
+        this.shareInstagramStory(resultData);
+      });
+    }
+
     const copyUrlBtn = this.container.querySelector('#copyUrlBtn');
     if (copyUrlBtn) {
       copyUrlBtn.addEventListener('click', () => {
@@ -65,6 +75,35 @@ export class ShareSectionComponent {
       restartBtn.addEventListener('click', () => {
         this.onRestart();
       });
+    }
+  }
+
+  shareInstagramStory(resultData) {
+    // 1. 결과 카드 이미지 다운로드
+    CardExporter.exportCardAsPNG(resultData);
+
+    // 2. 접속 URL 클립보드 복사
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href).catch(() => {});
+    }
+
+    // 3. 디바이스 탐지 및 인스타그램 스토리카메라 딥링크 이동
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+    const isAndroid = /android/i.test(userAgent);
+
+    if (isIOS || isAndroid) {
+      alert('📸 결과 카드 이미지가 다운로드되었고, 링크가 클립보드에 복사되었습니다!\n\n인스타그램 스토리가 열리면 갤러리에서 저장된 인증서 이미지를 선택하고, [링크 스티커]에 복사된 주소를 붙여넣어 공유해 보세요!');
+
+      setTimeout(() => {
+        if (isIOS) {
+          window.location.href = 'instagram://story-camera';
+        } else if (isAndroid) {
+          window.location.href = 'intent://story-camera/#Intent;scheme=instagram;package=com.instagram.android;end';
+        }
+      }, 800);
+    } else {
+      alert('📸 결과 카드 이미지가 저장되었으며, 테스트 링크가 클립보드에 복사되었습니다!\n(인스타그램 앱 자동 실행은 모바일 기기에서만 지원됩니다.)');
     }
   }
 
