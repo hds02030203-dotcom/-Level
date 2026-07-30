@@ -1234,26 +1234,29 @@
       const selected = question.options[optionIndex];
       this.answers[this.currentStep] = optionIndex;
 
-      // Special scoring for Q16 Certification Question
+      // Diagnostic Weight Multipliers: Q16, Q17, Q18, Q19 get 3x weight multiplier (+3 pts)!
+      const isCoreDiagnostic = [16, 17, 18, 19].includes(question.id);
+      const weight = isCoreDiagnostic ? 3 : 1;
+
       if (question.id === 16) {
         if (optionIndex === 0) {
-          // 2개 다 소유: 최고 가점 (+3)
-          this.scores['GWANJANG'] = (this.scores['GWANJANG'] || 0) + 3;
-          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 3;
+          // 2개 다 소유: 최고 가점 (+5)
+          this.scores['GWANJANG'] = (this.scores['GWANJANG'] || 0) + 5;
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 5;
         } else if (optionIndex === 1) {
-          // 둘 중 1개 소유: 높은 가점 (+2)
-          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 2;
-          this.scores['DAN_4'] = (this.scores['DAN_4'] || 0) + 2;
+          // 둘 중 1개 소유: 높은 가점 (+4)
+          this.scores['SABEOM'] = (this.scores['SABEOM'] || 0) + 4;
+          this.scores['DAN_4'] = (this.scores['DAN_4'] || 0) + 3;
         } else if (optionIndex === 2) {
-          // 품/단증 보유: 기본 점수 (+1)
-          this.scores['DAN_1'] = (this.scores['DAN_1'] || 0) + 1;
+          // 품/단증 보유: 유단자 가점 (+3)
+          this.scores['DAN_1'] = (this.scores['DAN_1'] || 0) + 3;
         } else {
           // 자격증 없음: 노란 띠 (+1)
           this.scores['YELLOW_BELT'] = (this.scores['YELLOW_BELT'] || 0) + 1;
         }
       } else {
         const target = selected.target;
-        this.scores[target] = (this.scores[target] || 0) + 1;
+        this.scores[target] = (this.scores[target] || 0) + weight;
       }
 
       if (this.currentStep < QUESTIONS.length - 1) {
