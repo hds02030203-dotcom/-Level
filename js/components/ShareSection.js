@@ -6,14 +6,25 @@ import { CardExporter } from './CardExporter.js';
 
 export class ShareSectionComponent {
   constructor(containerId, options = {}) {
-    this.container = document.getElementById(containerId);
+    this.containerId = containerId;
+    this._container = null;
     this.onRestart = options.onRestart || (() => {});
   }
 
-  render(resultData) {
-    if (!this.container || !resultData) return;
+  get container() {
+    if (this._container) return this._container;
+    return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+  }
 
-    this.container.innerHTML = `
+  set container(val) {
+    this._container = val;
+  }
+
+  render(resultData) {
+    const targetNode = this.container;
+    if (!targetNode || !resultData) return;
+
+    targetNode.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 20px;">
         <button class="btn-primary" id="downloadCardBtn">
           📥 결과 카드 이미지 저장 (PNG)
@@ -37,28 +48,31 @@ export class ShareSectionComponent {
   }
 
   bindEvents(resultData) {
-    const downloadBtn = this.container.querySelector('#downloadCardBtn');
+    const targetNode = this.container;
+    if (!targetNode) return;
+
+    const downloadBtn = targetNode.querySelector('#downloadCardBtn');
     if (downloadBtn) {
       downloadBtn.addEventListener('click', () => {
         CardExporter.exportCardAsPNG(resultData);
       });
     }
 
-    const kakaoShareBtn = this.container.querySelector('#kakaoShareBtn');
+    const kakaoShareBtn = targetNode.querySelector('#kakaoShareBtn');
     if (kakaoShareBtn) {
       kakaoShareBtn.addEventListener('click', () => {
         this.shareKakaoTalk(resultData);
       });
     }
 
-    const instaShareBtn = this.container.querySelector('#instaShareBtn');
+    const instaShareBtn = targetNode.querySelector('#instaShareBtn');
     if (instaShareBtn) {
       instaShareBtn.addEventListener('click', () => {
         this.shareInstagramStory(resultData);
       });
     }
 
-    const copyUrlBtn = this.container.querySelector('#copyUrlBtn');
+    const copyUrlBtn = targetNode.querySelector('#copyUrlBtn');
     if (copyUrlBtn) {
       copyUrlBtn.addEventListener('click', () => {
         const dummyUrl = window.location.href;
@@ -70,7 +84,7 @@ export class ShareSectionComponent {
       });
     }
 
-    const restartBtn = this.container.querySelector('#restartTestBtn');
+    const restartBtn = targetNode.querySelector('#restartTestBtn');
     if (restartBtn) {
       restartBtn.addEventListener('click', () => {
         this.onRestart();
@@ -79,15 +93,12 @@ export class ShareSectionComponent {
   }
 
   shareInstagramStory(resultData) {
-    // 1. 결과 카드 이미지 다운로드
     CardExporter.exportCardAsPNG(resultData);
 
-    // 2. 접속 URL 클립보드 복사
     if (navigator.clipboard) {
       navigator.clipboard.writeText(window.location.href).catch(() => {});
     }
 
-    // 3. 디바이스 탐지 및 인스타그램 스토리카메라 딥링크 이동
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
     const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
     const isAndroid = /android/i.test(userAgent);
@@ -116,11 +127,13 @@ export class ShareSectionComponent {
           window.Kakao.init(kakaoKey);
         }
 
+        const titleText = resultData.userName ? `🥋 [${resultData.userName}] 님의 태권도 레벨: ${resultData.type}` : `🥋 나의 태권도 레벨: [${resultData.type}]`;
+
         window.Kakao.Share.sendDefault({
           objectType: 'feed',
           content: {
-            title: `🥋 태권도 레벨 테스트 결과: ${resultData.type} (${resultData.subTitle})`,
-            description: `나의 태권도 내공은 ${resultData.topPercent}! 지금 당신의 레벨을 측정해보세요.`,
+            title: titleText,
+            description: `${resultData.subTitle} | ${resultData.topPercent}\n${resultData.description}`,
             imageUrl: 'https://developers.kakao.com/assets/img/about/logos/kakaotalk/kakaotalk_sharing_btn_medium.png',
             link: {
               mobileWebUrl: window.location.href,

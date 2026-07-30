@@ -159,12 +159,18 @@ bundle_code = f"""/**
   class StartScreenComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
+      this._container = null;
       this.onStart = options.onStart || (() => {{}});
       this.liveTimer = null;
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+    }}
+
+    set container(val) {{
+      this._container = val;
     }}
 
     static getBaseCount() {{
@@ -177,7 +183,8 @@ bundle_code = f"""/**
     }}
 
     render() {{
-      if (!this.container) return;
+      const targetNode = this.container;
+      if (!targetNode) return;
 
       if (this.liveTimer) {{
         clearInterval(this.liveTimer);
@@ -186,7 +193,7 @@ bundle_code = f"""/**
 
       const currentCount = StartScreenComponent.getBaseCount();
 
-      this.container.innerHTML = `
+      targetNode.innerHTML = `
         <div class="glass-card landing-view">
           <div class="hero-emblem" aria-label="Taekwondo Belt Emblem">🥋</div>
           <h1 class="landing-title">내 태권도 내공은<br>몇 단일까?</h1>
@@ -221,7 +228,9 @@ bundle_code = f"""/**
     }}
 
     animateCounter(targetCount) {{
-      const countEl = this.container.querySelector('#participantCount');
+      const targetNode = this.container;
+      if (!targetNode) return;
+      const countEl = targetNode.querySelector('#participantCount');
       if (!countEl) return;
 
       const startCount = Math.max(0, targetCount - 35);
@@ -250,12 +259,15 @@ bundle_code = f"""/**
       let runningCount = initialCount;
 
       this.liveTimer = setInterval(() => {{
+        const targetNode = this.container;
+        if (!targetNode) return;
+
         if (Math.random() < 0.45) {{
           const inc = Math.random() < 0.8 ? 1 : 2;
           runningCount += inc;
 
-          const badgeEl = this.container.querySelector('#participantBadge');
-          const countEl = this.container.querySelector('#participantCount');
+          const badgeEl = targetNode.querySelector('#participantBadge');
+          const countEl = targetNode.querySelector('#participantCount');
 
           if (countEl && badgeEl) {{
             countEl.textContent = runningCount.toLocaleString();
@@ -268,7 +280,10 @@ bundle_code = f"""/**
     }}
 
     bindEvents() {{
-      const startBtn = this.container.querySelector('#startTestBtn');
+      const targetNode = this.container;
+      if (!targetNode) return;
+
+      const startBtn = targetNode.querySelector('#startTestBtn');
       if (startBtn) {{
         startBtn.addEventListener('click', () => {{
           if (this.liveTimer) {{
@@ -276,8 +291,8 @@ bundle_code = f"""/**
             this.liveTimer = null;
           }}
 
-          const nameInput = this.container.querySelector('#userNameInput');
-          const dojangInput = this.container.querySelector('#userDojangInput');
+          const nameInput = targetNode.querySelector('#userNameInput');
+          const dojangInput = targetNode.querySelector('#userDojangInput');
 
           const userName = nameInput ? nameInput.value.trim() : '';
           const userDojang = dojangInput ? dojangInput.value.trim() : '';
@@ -294,16 +309,23 @@ bundle_code = f"""/**
   class QuizScreenComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
+      this._container = null;
       this.onSelectOption = options.onSelectOption || (() => {{}});
       this.onPrevStep = options.onPrevStep || (() => {{}});
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
+    set container(val) {{
+      this._container = val;
+    }}
+
     render(questionData, currentStep, totalSteps, selectedOptionIndex = null) {{
-      if (!this.container || !questionData) return;
+      const targetNode = this.container;
+      if (!targetNode || !questionData) return;
 
       const progressContainer = document.getElementById('progressContainer');
       const percentage = Math.round((currentStep / totalSteps) * 100);
@@ -333,7 +355,7 @@ bundle_code = f"""/**
         ? `<button class="btn-back" id="prevBtn">← 이전 질문으로</button>`
         : `<span></span>`;
 
-      this.container.innerHTML = `
+      targetNode.innerHTML = `
         <div class="glass-card quiz-view">
           <h2 class="question-text">${{questionData.question}}</h2>
           <div class="options-group">
@@ -345,7 +367,7 @@ bundle_code = f"""/**
         </div>
       `;
 
-      const optionBtns = this.container.querySelectorAll('.option-card');
+      const optionBtns = targetNode.querySelectorAll('.option-card');
       optionBtns.forEach(btn => {{
         btn.addEventListener('click', () => {{
           const idx = parseInt(btn.getAttribute('data-index'), 10);
@@ -353,7 +375,7 @@ bundle_code = f"""/**
         }});
       }});
 
-      const prevBtn = this.container.querySelector('#prevBtn');
+      const prevBtn = targetNode.querySelector('#prevBtn');
       if (prevBtn) {{
         prevBtn.addEventListener('click', () => {{
           this.onPrevStep();
@@ -368,16 +390,23 @@ bundle_code = f"""/**
   class LoadingScreenComponent {{
     constructor(containerId) {{
       this.containerId = containerId;
+      this._container = null;
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
-    render() {{
-      if (!this.container) return;
+    set container(val) {{
+      this._container = val;
+    }}
 
-      this.container.innerHTML = `
+    render() {{
+      const targetNode = this.container;
+      if (!targetNode) return;
+
+      targetNode.innerHTML = `
         <div class="glass-card loading-view">
           <div class="spinner" aria-label="내공 측정 로더"></div>
           <h2 style="font-size: 1.35rem; font-weight: 800; color: #FFFFFF; margin-top: 10px;">
@@ -398,14 +427,21 @@ bundle_code = f"""/**
   class DistributionChartComponent {{
     constructor(containerId) {{
       this.containerId = containerId;
+      this._container = null;
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
+    set container(val) {{
+      this._container = val;
+    }}
+
     render(userResult) {{
-      if (!this.container || !userResult) return;
+      const targetNode = this.container;
+      if (!targetNode || !userResult) return;
 
       const userCategoryId = userResult.id;
 
@@ -438,11 +474,11 @@ bundle_code = f"""/**
         `;
       }}).join('');
 
-      this.container.innerHTML = `
+      targetNode.innerHTML = `
         <div class="chart-container-card">
           <div class="chart-header">
             <div class="chart-title">📊 전체 수련생 레벨 분포도</div>
-            <div class="chart-subtag">국기원 통계 데이터</div>
+            <div class="chart-subtag">국기원 실시간 집계</div>
           </div>
           <div class="chart-list">
             ${{rowsHtml}}
@@ -458,16 +494,23 @@ bundle_code = f"""/**
   class ResultScreenComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
+      this._container = null;
       this.onRestart = options.onRestart || (() => {{}});
       this.distributionChart = new DistributionChartComponent('distributionChartContainer');
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
+    set container(val) {{
+      this._container = val;
+    }}
+
     render(resultData) {{
-      if (!this.container || !resultData) return;
+      const targetNode = this.container;
+      if (!targetNode || !resultData) return;
 
       let certTitle = '태권도 레벨 공식 인증서';
       if (resultData.userName && resultData.userDojang) {{
@@ -478,7 +521,7 @@ bundle_code = f"""/**
         certTitle = `[ ${{resultData.userDojang}} ] 수련생의 레벨 인증서`;
       }}
 
-      this.container.innerHTML = `
+      targetNode.innerHTML = `
         <div class="result-view">
           <div class="certificate-card">
             <div style="font-size: 0.85rem; font-weight: 800; color: #94A3B8; margin-bottom: 8px; letter-spacing: -0.2px;">
@@ -524,35 +567,38 @@ bundle_code = f"""/**
         </div>
       `;
 
-      this.distributionChart.container = this.container.querySelector('#distributionChartContainer');
+      this.distributionChart.container = targetNode.querySelector('#distributionChartContainer');
       this.distributionChart.render(resultData);
 
       this.bindEvents(resultData);
     }}
 
     bindEvents(resultData) {{
-      const downloadBtn = this.container.querySelector('#downloadBtn');
+      const targetNode = this.container;
+      if (!targetNode) return;
+
+      const downloadBtn = targetNode.querySelector('#downloadBtn');
       if (downloadBtn) {{
         downloadBtn.addEventListener('click', () => {{
           CardExporter.exportCardAsPNG(resultData);
         }});
       }}
 
-      const kakaoBtn = this.container.querySelector('#kakaoShareBtn');
+      const kakaoBtn = targetNode.querySelector('#kakaoShareBtn');
       if (kakaoBtn) {{
         kakaoBtn.addEventListener('click', () => {{
           this.shareKakao(resultData);
         }});
       }}
 
-      const instaBtn = this.container.querySelector('#instaShareBtn');
+      const instaBtn = targetNode.querySelector('#instaShareBtn');
       if (instaBtn) {{
         instaBtn.addEventListener('click', () => {{
           this.shareInstagramStory(resultData);
         }});
       }}
 
-      const copyUrlBtn = this.container.querySelector('#copyUrlBtn');
+      const copyUrlBtn = targetNode.querySelector('#copyUrlBtn');
       if (copyUrlBtn) {{
         copyUrlBtn.addEventListener('click', () => {{
           navigator.clipboard.writeText(window.location.href);
@@ -560,7 +606,7 @@ bundle_code = f"""/**
         }});
       }}
 
-      const restartBtn = this.container.querySelector('#restartBtn');
+      const restartBtn = targetNode.querySelector('#restartBtn');
       if (restartBtn) {{
         restartBtn.addEventListener('click', () => {{
           this.onRestart();
@@ -630,18 +676,25 @@ bundle_code = f"""/**
   class HeaderComponent {{
     constructor(containerId, options = {{}}) {{
       this.containerId = containerId;
+      this._container = null;
       this.onSoundToggle = options.onSoundToggle || (() => {{}});
       this.isMuted = true;
     }}
 
     get container() {{
+      if (this._container) return this._container;
       return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
     }}
 
-    render() {{
-      if (!this.container) return;
+    set container(val) {{
+      this._container = val;
+    }}
 
-      this.container.innerHTML = `
+    render() {{
+      const targetNode = this.container;
+      if (!targetNode) return;
+
+      targetNode.innerHTML = `
         <header class="site-header">
           <a href="#" class="brand-logo" id="headerLogoBtn">
             <span>🥋 태권도 LEVEL</span>
@@ -653,7 +706,7 @@ bundle_code = f"""/**
         </header>
       `;
 
-      const logoBtn = this.container.querySelector('#headerLogoBtn');
+      const logoBtn = targetNode.querySelector('#headerLogoBtn');
       if (logoBtn) {{
         logoBtn.addEventListener('click', (e) => {{
           e.preventDefault();
@@ -661,7 +714,7 @@ bundle_code = f"""/**
         }});
       }}
 
-      const soundBtn = this.container.querySelector('#soundToggleBtn');
+      const soundBtn = targetNode.querySelector('#soundToggleBtn');
       if (soundBtn) {{
         soundBtn.addEventListener('click', () => {{
           this.isMuted = !this.isMuted;
@@ -721,6 +774,7 @@ bundle_code = f"""/**
 
       if (this.state === 'START') {{
         if (progressContainer) progressContainer.innerHTML = '';
+        this.startScreen.container = mainContainer;
         this.startScreen.render();
 
       }} else if (this.state === 'QUIZ') {{
@@ -729,10 +783,12 @@ bundle_code = f"""/**
           ? this.answers[this.currentStep]
           : null;
 
+        this.quizScreen.container = mainContainer;
         this.quizScreen.render(question, this.currentStep + 1, QUESTIONS.length, selectedOptionIndex);
 
       }} else if (this.state === 'LOADING') {{
         if (progressContainer) progressContainer.innerHTML = '';
+        this.loadingScreen.container = mainContainer;
         this.loadingScreen.render();
 
         setTimeout(() => {{
@@ -743,6 +799,7 @@ bundle_code = f"""/**
 
       }} else if (this.state === 'RESULT') {{
         if (progressContainer) progressContainer.innerHTML = '';
+        this.resultScreen.container = mainContainer;
         this.resultScreen.render(this.finalResult);
       }}
     }}

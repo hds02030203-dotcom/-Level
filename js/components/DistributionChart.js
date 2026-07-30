@@ -5,14 +5,21 @@
 export class DistributionChartComponent {
   constructor(containerId) {
     this.containerId = containerId;
+    this._container = null;
   }
 
   get container() {
+    if (this._container) return this._container;
     return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
   }
 
+  set container(val) {
+    this._container = val;
+  }
+
   render(userResult) {
-    if (!this.container || !userResult) return;
+    const targetNode = this.container;
+    if (!targetNode || !userResult) return;
 
     const userCategoryId = userResult.id;
 
@@ -45,7 +52,7 @@ export class DistributionChartComponent {
       `;
     }).join('');
 
-    this.container.innerHTML = `
+    targetNode.innerHTML = `
       <div class="chart-container-card">
         <div class="chart-header">
           <div class="chart-title">📊 전체 수련생 레벨 분포도</div>

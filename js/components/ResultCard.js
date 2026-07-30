@@ -5,14 +5,21 @@
 export class ResultCardComponent {
   constructor(containerId) {
     this.containerId = containerId;
+    this._container = null;
   }
 
   get container() {
+    if (this._container) return this._container;
     return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
   }
 
+  set container(val) {
+    this._container = val;
+  }
+
   render(resultData) {
-    if (!this.container || !resultData) return;
+    const targetNode = this.container;
+    if (!targetNode || !resultData) return;
 
     let certTitle = '태권도 레벨 공식 인증서';
     if (resultData.userName && resultData.userDojang) {
@@ -23,7 +30,7 @@ export class ResultCardComponent {
       certTitle = `[ ${resultData.userDojang} ] 수련생의 레벨 인증서`;
     }
 
-    this.container.innerHTML = `
+    targetNode.innerHTML = `
       <div class="certificate-card" id="certificateCardNode">
         <div style="font-size: 0.85rem; font-weight: 800; color: #94A3B8; margin-bottom: 8px; letter-spacing: -0.2px;">
           🥋 ${certTitle}
