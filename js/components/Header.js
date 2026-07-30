@@ -1,26 +1,32 @@
 /**
  * Header Component
- * Renders the top logo brand bar and background sound toggle.
+ * Renders the clean top brand logo bar.
  */
 export class HeaderComponent {
-  constructor(containerId, options = {}) {
-    this.container = document.getElementById(containerId);
-    this.isMuted = true;
-    this.onSoundToggle = options.onSoundToggle || (() => {});
+  constructor(containerId) {
+    this.containerId = containerId;
+    this._container = null;
+  }
+
+  get container() {
+    if (this._container) return this._container;
+    return typeof this.containerId === 'string' ? document.getElementById(this.containerId) : this.containerId;
+  }
+
+  set container(val) {
+    this._container = val;
   }
 
   render() {
-    if (!this.container) return;
+    const targetNode = this.container;
+    if (!targetNode) return;
 
-    this.container.innerHTML = `
+    targetNode.innerHTML = `
       <header class="site-header">
         <a href="#" class="brand-logo" id="headerLogoBtn">
           <span>🥋 태권도 LEVEL</span>
           <span class="brand-badge">TEST</span>
         </a>
-        <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드 켜기/끄기">
-          ${this.isMuted ? '🔇' : '🔊'}
-        </button>
       </header>
     `;
 
@@ -28,16 +34,10 @@ export class HeaderComponent {
   }
 
   bindEvents() {
-    const soundBtn = this.container.querySelector('#soundToggleBtn');
-    if (soundBtn) {
-      soundBtn.addEventListener('click', () => {
-        this.isMuted = !this.isMuted;
-        soundBtn.innerHTML = this.isMuted ? '🔇' : '🔊';
-        this.onSoundToggle(this.isMuted);
-      });
-    }
+    const targetNode = this.container;
+    if (!targetNode) return;
 
-    const logoBtn = this.container.querySelector('#headerLogoBtn');
+    const logoBtn = targetNode.querySelector('#headerLogoBtn');
     if (logoBtn) {
       logoBtn.addEventListener('click', (e) => {
         e.preventDefault();

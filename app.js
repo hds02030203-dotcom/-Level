@@ -24,11 +24,7 @@ class App {
   }
 
   initComponents() {
-    this.header = new HeaderComponent('headerContainer', {
-      onSoundToggle: (isMuted) => {
-        console.log('Sound toggled. Muted:', isMuted);
-      }
-    });
+    this.header = new HeaderComponent('headerContainer');
 
     this.userInfo = { userName: '', userDojang: '' };
 

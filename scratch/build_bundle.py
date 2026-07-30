@@ -726,11 +726,9 @@ bundle_code = f"""/**
   // 3.10 HEADER COMPONENT
   // --------------------------------------------------------------------------
   class HeaderComponent {{
-    constructor(containerId, options = {{}}) {{
+    constructor(containerId) {{
       this.containerId = containerId;
       this._container = null;
-      this.onSoundToggle = options.onSoundToggle || (() => {{}});
-      this.isMuted = true;
     }}
 
     get container() {{
@@ -752,9 +750,6 @@ bundle_code = f"""/**
             <span>🥋 태권도 LEVEL</span>
             <span class="brand-badge">TEST</span>
           </a>
-          <button class="sound-toggle-btn" id="soundToggleBtn" title="사운드">
-            ${{this.isMuted ? '🔇' : '🔊'}}
-          </button>
         </header>
       `;
 
@@ -763,15 +758,6 @@ bundle_code = f"""/**
         logoBtn.addEventListener('click', (e) => {{
           e.preventDefault();
           window.location.reload();
-        }});
-      }}
-
-      const soundBtn = targetNode.querySelector('#soundToggleBtn');
-      if (soundBtn) {{
-        soundBtn.addEventListener('click', () => {{
-          this.isMuted = !this.isMuted;
-          soundBtn.textContent = this.isMuted ? '🔇' : '🔊';
-          this.onSoundToggle(this.isMuted);
         }});
       }}
     }}
