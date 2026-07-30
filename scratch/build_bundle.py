@@ -662,26 +662,24 @@ bundle_code = f"""/**
 
         const finalImageUrl = uploadedImageUrl || 'https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&auto=format&fit=crop&q=80';
 
-        let mainTitle = `🥋 나의 태권도 내공 레벨: [ ${{resultData.type}} ]`;
+        const testUrl = 'https://level-rouge-gamma.vercel.app';
+
+        let certTitle = '🥋 태권도 레벨 공식 인증서';
         if (resultData.userName && resultData.userDojang) {{
-          mainTitle = `🥋 [${{resultData.userDojang}}] ${{resultData.userName}} 님의 인증서`;
+          certTitle = `🥋 [${{resultData.userDojang}}] ${{resultData.userName}} 님의 레벨 인증서`;
         }} else if (resultData.userName) {{
-          mainTitle = `🥋 ${{resultData.userName}} 님의 태권도 인증서`;
+          certTitle = `🥋 ${{resultData.userName}} 님의 태권도 레벨 인증서`;
         }} else if (resultData.userDojang) {{
-          mainTitle = `🥋 [${{resultData.userDojang}}] 수련생의 인증서`;
+          certTitle = `🥋 [${{resultData.userDojang}}] 수련생의 레벨 인증서`;
         }}
 
-        const testUrl = (window.location.origin && window.location.origin.includes('vercel.app'))
-          ? window.location.origin
-          : 'https://level-rouge-gamma.vercel.app';
-
-        const shortDesc = `🔥 [${{resultData.subTitle}}] (${{resultData.topPercent}})\\n지금 바로 당신의 진짜 레벨을 테스트해보세요!`;
+        const descText = `🔥 내공 레벨: [ ${{resultData.type}} ] (${{resultData.topPercent}})\\n💖 환상의 짝꿍: ${{resultData.bestMatch}}\\n\\n👇 아래 링크를 터치해 당신의 레벨도 확인해보세요!`;
 
         window.Kakao.Share.sendDefault({{
           objectType: 'feed',
           content: {{
-            title: mainTitle,
-            description: shortDesc,
+            title: certTitle,
+            description: descText,
             imageUrl: finalImageUrl,
             imageWidth: 600,
             imageHeight: 800,
@@ -689,14 +687,6 @@ bundle_code = f"""/**
               mobileWebUrl: testUrl,
               webUrl: testUrl,
             }},
-          }},
-          itemContent: {{
-            profileText: '🥋 태권도 레벨 테스트 공식 인증서',
-            items: [
-              {{ item: '내공 레벨', itemOp: resultData.type }},
-              {{ item: '상위 비율', itemOp: resultData.topPercent }},
-              {{ item: '환상의 짝꿍', itemOp: resultData.bestMatch }}
-            ]
           }},
           buttons: [
             {{
